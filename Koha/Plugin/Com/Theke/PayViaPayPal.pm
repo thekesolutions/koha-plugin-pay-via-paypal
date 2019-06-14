@@ -1,0 +1,334 @@
+package Koha::Plugin::Com::Theke::PayViaPayPal;
+
+## It's good practice to use Modern::Perl
+use Modern::Perl;
+
+## Required for all plugins
+use base qw(Koha::Plugins::Base);
+
+## We will also need to include any Koha libraries we want to access
+use C4::Context;
+use C4::Output;
+use C4::Auth;
+use Koha::Patron;
+use Koha::DateUtils;
+use Koha::Libraries;
+use Koha::Patron::Categories;
+use Koha::Account;
+use Koha::Account::Lines;
+use MARC::Record;
+use Cwd qw(abs_path);
+use Mojo::JSON qw(decode_json);
+use URI;
+use HTTP::Request::Common;
+use URI::Escape qw(uri_unescape);
+use LWP::UserAgent;
+
+## Here we set our plugin version
+our $VERSION = "1.0";
+
+## Here is our metadata, some keys are required, some are optional
+our $metadata = {
+    name            => 'Pay Via PayPal',
+    author          => 'Agustín Moyano',
+    date_authored   => '2019-06-13',
+    date_updated    => "1900-01-01",
+    minimum_version => '18.05.00.000',
+    maximum_version => undef,
+    version         => $VERSION,
+    description     => 'This plugin implements payment method via PayPal',
+};
+
+## This is the minimum code required for a plugin's 'new' method
+## More can be added, but none should be removed
+sub new {
+    my ( $class, $args ) = @_;
+
+    ## We need to add our metadata here so our base class can access it
+    $args->{'metadata'} = $metadata;
+    $args->{'metadata'}->{'class'} = $class;
+
+    ## Here, we call the 'new' method for our base class
+    ## This runs some additional magic and checking
+    ## and returns our actual $self
+    my $self = $class->SUPER::new($args);
+
+    return $self;
+}
+
+## If your plugin can process payments online,
+## and that feature of the plugin is enabled,
+## this method will return true
+sub opac_online_payment {
+    my ( $self, $args ) = @_;
+
+    return 1; #$self->retrieve_data('enable_opac_payments') eq 'Yes';
+}
+
+## This method triggers the beginning of the payment process
+## It could result in a form displayed to the patron the is submitted
+## or go straight to a redirect to the payment service ala paypal
+sub opac_online_payment_begin {
+    my ( $self, $args ) = @_;
+    my $cgi = $self->{'cgi'};
+
+    my $active_currency = Koha::Acquisition::Currencies->get_active;
+
+    my $error = 0;
+
+    my $ua = LWP::UserAgent->new;
+
+    my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
+        {   template_name   => abs_path( $self->mbf_path( 'opac_online_payment_error.tt' ) ),
+            query           => $cgi,
+            type            => 'opac',
+            authnotrequired => 0,
+            is_plugin       => 1,
+        }
+    );
+
+    my $url =
+      $self->retrieve_data('PayPalSandboxMode')
+      ? 'https://api-3t.sandbox.paypal.com/nvp'
+      : 'https://api-3t.paypal.com/nvp';
+
+    my $opac_base_url = C4::Context->preference('OPACBaseURL');
+
+    my @accountline_ids = $cgi->multi_param('accountline');
+
+    my $rs = Koha::Database->new()->schema()->resultset('Accountline');
+    my @accountlines = map { $rs->find($_) } @accountline_ids;
+
+    my $amount_to_pay = 0;
+    
+    foreach $a (@accountlines) {
+        $amount_to_pay = $amount_to_pay + $a->amountoutstanding;
+    }
+    
+    my $return_url = URI->new( $opac_base_url . "/cgi-bin/koha/opac-account-pay-return.pl" );
+    $return_url->query_form( { amount => $amount_to_pay, accountlines => \@accountlines, payment_method => 'Koha::Plugin::Com::Theke::PayViaPayPal' } );
+
+    my $cancel_url = URI->new( $opac_base_url . "/cgi-bin/koha/opac-account.pl" );
+
+    my $nvp_params = {
+        'USER'      => $self->retrieve_data('PayPalUser'),
+        'PWD'       => $self->retrieve_data('PayPalPwd'),
+        'SIGNATURE' => $self->retrieve_data('PayPalSignature'),
+
+        # API Version and Operation
+        'METHOD'  => 'SetExpressCheckout',
+        'VERSION' => '82.0',
+
+        # API specifics for SetExpressCheckout
+        'NOSHIPPING'                            => 1,
+        'REQCONFIRMSHIPPING'                    => 0,
+        'ALLOWNOTE'                             => 0,
+        'BRANDNAME'                             => C4::Context->preference('LibraryName'),
+        'CANCELURL'                             => $cancel_url->as_string(),
+        'RETURNURL'                             => $return_url->as_string(),
+        'PAYMENTREQUEST_0_CURRENCYCODE'         => $active_currency->currency,
+        'PAYMENTREQUEST_0_AMT'                  => $amount_to_pay,
+        'PAYMENTREQUEST_0_PAYMENTACTION'        => 'Sale',
+        'PAYMENTREQUEST_0_ALLOWEDPAYMENTMETHOD' => 'InstantPaymentOnly',
+        'PAYMENTREQUEST_0_DESC'                 => $self->retrieve_data('PayPalChargeDescription'),
+        'SOLUTIONTYPE'                          => 'Sole',
+    };
+
+    use Data::Printer colored => 1;
+    p($nvp_params);
+
+    my $response = $ua->request( POST $url, $nvp_params );
+
+    if ( $response->is_success ) {
+
+        my $urlencoded = $response->content;
+        my %params = URI->new( "?$urlencoded" )->query_form;
+
+        if ( $params{ACK} eq "Success" ) {
+            my $token = $params{TOKEN};
+
+            my $redirect_url =
+              $self->retrieve_data('PayPalSandboxMode')
+              ? "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token="
+              : "https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=";
+            print $cgi->redirect( $redirect_url . $token );
+
+        }
+        else {
+            $template->param( error => "PAYPAL_ERROR_PROCESSING" );
+            $error = 1;
+        }
+
+    }
+    else {
+        $template->param( error => "PAYPAL_UNABLE_TO_CONNECT" );
+        $error = 1;
+    }
+
+    output_html_with_http_headers( $cgi, $cookie, $template->output, undef, { force_no_caching => 1 } ) if $error;
+
+}
+
+## This method triggers the end of the payment process
+## Should should result in displaying a page indicating
+## the success or failure of the payment.
+sub opac_online_payment_end {
+    my ( $self, $args ) = @_;
+    my $cgi = $self->{'cgi'};
+
+    my ( $template, $borrowernumber ) = get_template_and_user(
+        {
+            template_name =>
+              abs_path( $self->mbf_path('opac_online_payment_end.tt') ),
+            query           => $cgi,
+            type            => 'opac',
+            authnotrequired => 0,
+            is_plugin       => 1,
+        }
+    );
+
+    my $m;
+    my $v;
+
+    my $amount          = $cgi->param('amount');
+    my @accountline_ids = $cgi->multi_param('accountlines_id');
+
+    $m = "no_amount"       unless $amount;
+    $m = "no_accountlines" unless @accountline_ids;
+
+    if ( $amount && @accountline_ids ) {
+        my $account = Koha::Account->new( { patron_id => $borrowernumber } );
+        my @accountlines = Koha::Account::Lines->search(
+            {
+                accountlines_id => { -in => \@accountline_ids }
+            }
+        )->as_list();
+        foreach my $id (@accountline_ids) {
+            $account->pay(
+                {
+                    amount => $amount,
+                    lines  => \@accountlines,
+                    note   => "Paid via KitchenSink ImaginaryPay",
+                }
+            );
+        }
+        $m = 'valid_payment';
+        $v = $amount;
+    }
+
+    $template->param(
+        borrower      => scalar Koha::Patrons->find($borrowernumber),
+        message       => $m,
+        message_value => $v,
+    );
+
+    $self->output_html( $template->output() );
+}
+
+## If your tool is complicated enough to needs it's own setting/configuration
+## you will want to add a 'configure' method to your plugin like so.
+## Here I am throwing all the logic into the 'configure' method, but it could
+## be split up like the 'report' method is.
+sub configure {
+    my ( $self, $args ) = @_;
+    my $cgi = $self->{'cgi'};
+
+    unless ( $cgi->param('save') ) {
+        my $template = $self->get_template({ file => 'configure.tt' });
+
+        ## Grab the values we already have for our settings, if any exist
+        $template->param(
+            PayPalUser              => $self->retrieve_data('PayPalUser'),
+            PayPalPwd               => $self->retrieve_data('PayPalPwd'),
+            PayPalSignature         => $self->retrieve_data('PayPalSignature'),
+            PayPalChargeDescription => $self->retrieve_data('PayPalChargeDescription'),
+            PayPalSandboxMode       => $self->retrieve_data('PayPalSandboxMode'),
+        );
+
+        $self->output_html( $template->output() );
+    }
+    else {
+        my $data = {
+            PayPalUser              => $cgi->param('PayPalUser'),
+            PayPalPwd               => $cgi->param('PayPalPwd'),
+            PayPalSignature         => $cgi->param('PayPalSignature'),
+            PayPalChargeDescription => $cgi->param('PayPalChargeDescription'),
+            PayPalSandboxMode       => $cgi->param('PayPalSandboxMode'),
+        };
+        use Data::Printer colored => 1;
+        p($data);
+        $self->store_data($data);
+        $self->go_home();
+    }
+}
+
+## This is the 'install' method. Any database tables or other setup that should
+## be done when the plugin if first installed should be executed in this method.
+## The installation method should always return true if the installation succeeded
+## or false if it failed.
+sub install() {
+    my ( $self, $args ) = @_;
+
+    my $table = $self->get_qualified_table_name('mytable');
+
+    return C4::Context->dbh->do( "
+        CREATE TABLE IF NOT EXISTS $table (
+            `borrowernumber` INT( 11 ) NOT NULL
+        ) ENGINE = INNODB;
+    " );
+}
+
+## This is the 'upgrade' method. It will be triggered when a newer version of a
+## plugin is installed over an existing older version of a plugin
+sub upgrade {
+    my ( $self, $args ) = @_;
+
+    my $dt = dt_from_string();
+    $self->store_data( { last_upgraded => $dt->ymd('-') . ' ' . $dt->hms(':') } );
+
+    return 1;
+}
+
+## This method will be run just before the plugin files are deleted
+## when a plugin is uninstalled. It is good practice to clean up
+## after ourselves!
+sub uninstall() {
+    my ( $self, $args ) = @_;
+
+    my $table = $self->get_qualified_table_name('mytable');
+
+    return C4::Context->dbh->do("DROP TABLE IF EXISTS $table");
+}
+
+## API methods
+# If your plugin implements API routes, then the 'api_routes' method needs
+# to be implemented, returning valid OpenAPI 2.0 paths serialized as a hashref.
+# It is a good practice to actually write OpenAPI 2.0 path specs in JSON on the
+# plugin and read it here. This allows to use the spec for mainline Koha later,
+# thus making this a good prototyping tool.
+
+# sub api_routes {
+#     my ( $self, $args ) = @_;
+
+#     my $spec_str = $self->mbf_read('openapi.json');
+#     my $spec     = decode_json($spec_str);
+
+#     return $spec;
+# }
+
+# sub api_namespace {
+#     my ( $self ) = @_;
+    
+#     return 'kitchensink';
+# }
+
+# sub static_routes {
+#     my ( $self, $args ) = @_;
+
+#     my $spec_str = $self->mbf_read('staticapi.json');
+#     my $spec     = decode_json($spec_str);
+
+#     return $spec;
+# }
+
+1;
