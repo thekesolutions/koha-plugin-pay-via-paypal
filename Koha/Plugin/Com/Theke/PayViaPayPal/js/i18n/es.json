@@ -1,0 +1,6 @@
+{
+    "breadcrumb-title": "Su Pago",
+    "error-title": "<strong>Error:</strong> Hubo un problema al procesar su pago",
+    "PAYPAL_UNABLE_TO_CONNECT": "<p>No se pudo conectar a PayPal.</p><p>Por favor, intente más tarde.</p>",
+    "PAYPAL_ERROR_PROCESSING": "<p>No se pudo verificar el pago.</p><p>Por favor, contacte su biblioteca para verificar su pago.</p>"
+}

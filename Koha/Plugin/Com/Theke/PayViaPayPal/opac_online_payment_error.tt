@@ -10,7 +10,7 @@
     <ul class="breadcrumb">
         <li><a href="/cgi-bin/koha/opac-main.pl">Home</a> <span class="divider">&rsaquo;</span></li>
         <li><a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a> <span class="divider">&rsaquo;</span></li>
-        <li><a href="#">Your payment</a></li>
+        <li><a href="#" data-i18n="breadcrumb-title">Your payment</a></li>
     </ul>
 
     <div class="container-fluid">
@@ -24,15 +24,8 @@
                 <div id="useraccount" class="maincontent">
                     [% IF error %]
                         <div id="error" class="dialog alert">
-                            <p><strong>Error:</strong> there was a problem processing your payment</p>
-
-                            [% IF error == "PAYPAL_UNABLE_TO_CONNECT" %]
-                                <p>Unable to connect to PayPal.</p>
-                                <p>Please try again later.</p>
-                            [% ELSIF error == "PAYPAL_ERROR_PROCESSING" %]
-                                <p>Unable to verify payment.</p>
-                                <p>Please contact the library to verify your payment.</p>
-                            [% END %]
+                            <p class="error-title"><strong>Error:</strong> there was a problem processing your payment</p>
+                            <div class="error-body"></div>
                         </div>
                     [% END %]
 
@@ -45,4 +38,29 @@
 
 [% INCLUDE 'opac-bottom.inc' %]
 
-[% BLOCK jsinclude %][% END %]
+[% BLOCK jsinclude %]
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/CLDRPluralRuleParser/CLDRPluralRuleParser.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.messagestore.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.fallbacks.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.language.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.parser.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.emitter.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.emitter.bidi.js"></script>
+    <script src="/api/v1/contrib/payviapaypal/static/js/i18n.js"></script>
+    <script>
+        //$(document).ready(function() {
+            $.i18n({locale: 'en'});
+            [% IF locale %]
+                $.i18n().locale = '[% locale | html %]';
+            [% END %]
+            $.i18n().load({
+                en: '/api/v1/contrib/payviapaypal/static/js/i18n/en.json',
+                es: '/api/v1/contrib/payviapaypal/static/js/i18n/es.json',
+            })
+            .done(function() {
+                $('.error-body').text($.i18n('[% error | html %]'));
+            });
+       //})
+    </script>
+[% END %]

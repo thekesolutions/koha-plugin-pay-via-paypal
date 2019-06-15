@@ -62,7 +62,7 @@ sub new {
 sub opac_online_payment {
     my ( $self, $args ) = @_;
 
-    return 1; #$self->retrieve_data('enable_opac_payments') eq 'Yes';
+    return defined $self->retrieve_data('PayPalUser') && defined $self->retrieve_data('PayPalPwd')&& defined $self->retrieve_data('PayPalSignature');
 }
 
 ## This method triggers the beginning of the payment process
@@ -134,9 +134,6 @@ sub opac_online_payment_begin {
         'SOLUTIONTYPE'                          => 'Sole',
     };
 
-    use Data::Printer colored => 1;
-    p($nvp_params);
-
     my $response = $ua->request( POST $url, $nvp_params );
 
     if ( $response->is_success ) {
@@ -175,11 +172,9 @@ sub opac_online_payment_begin {
 sub opac_online_payment_end {
     my ( $self, $args ) = @_;
     my $cgi = $self->{'cgi'};
-
-    my ( $template, $borrowernumber ) = get_template_and_user(
-        {
-            template_name =>
-              abs_path( $self->mbf_path('opac_online_payment_end.tt') ),
+    
+    my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
+        {   template_name   => abs_path( $self->mbf_path( 'opac_online_payment_error.tt' ) ),
             query           => $cgi,
             type            => 'opac',
             authnotrequired => 0,
@@ -187,42 +182,77 @@ sub opac_online_payment_end {
         }
     );
 
-    my $m;
-    my $v;
+    my $active_currency = Koha::Acquisition::Currencies->get_active;
 
-    my $amount          = $cgi->param('amount');
-    my @accountline_ids = $cgi->multi_param('accountlines_id');
+    my $token    = $cgi->param('token');
+    my $payer_id = $cgi->param('PayerID');
+    my $amount   = $cgi->param('amount');
+    my @accountlines = $cgi->multi_param('accountlines');
 
-    $m = "no_amount"       unless $amount;
-    $m = "no_accountlines" unless @accountline_ids;
+    my $ua = LWP::UserAgent->new;
 
-    if ( $amount && @accountline_ids ) {
-        my $account = Koha::Account->new( { patron_id => $borrowernumber } );
-        my @accountlines = Koha::Account::Lines->search(
-            {
-                accountlines_id => { -in => \@accountline_ids }
-            }
-        )->as_list();
-        foreach my $id (@accountline_ids) {
+    my $url =
+      $self->retrieve_data('PayPalSandboxMode')
+      ? 'https://api-3t.sandbox.paypal.com/nvp'
+      : 'https://api-3t.paypal.com/nvp';
+
+    my $nvp_params = {
+        'USER'      => $self->retrieve_data('PayPalUser'),
+        'PWD'       => $self->retrieve_data('PayPalPwd'),
+        'SIGNATURE' => $self->retrieve_data('PayPalSignature'),
+
+        # API Version and Operation
+        'METHOD'  => 'DoExpressCheckoutPayment',
+        'VERSION' => '82.0',
+
+        # API specifics for DoExpressCheckout
+        'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
+        'PAYERID'                        => $payer_id,
+        'TOKEN'                          => $token,
+        'PAYMENTREQUEST_0_AMT'           => $amount,
+        'PAYMENTREQUEST_0_CURRENCYCODE'  => $active_currency->currency,
+    };
+
+    my $response = $ua->request( POST $url, $nvp_params );
+
+    my $error = q{};
+    if ( $response->is_success ) {
+
+        my $urlencoded = $response->content;
+        my %params = URI->new( "?$urlencoded" )->query_form;
+
+
+        if ( $params{ACK} eq "Success" ) {
+            $amount = $params{PAYMENTINFO_0_AMT};
+
+            my $account = Koha::Account->new( { patron_id => $borrowernumber } );
+            my @lines = Koha::Account::Lines->search(
+                {
+                    accountlines_id => { -in => \@accountlines }
+                }
+            );
+
             $account->pay(
                 {
                     amount => $amount,
-                    lines  => \@accountlines,
-                    note   => "Paid via KitchenSink ImaginaryPay",
+                    lines  => \@lines,
+                    note   => 'PayPal',
+                    interface => C4::Context->interface
                 }
             );
+            print $cgi->redirect("/cgi-bin/koha/opac-account.pl?payment=$amount")
         }
-        $m = 'valid_payment';
-        $v = $amount;
+        else {
+            $error = "PAYPAL_ERROR_PROCESSING";
+        }
+
+    }
+    else {
+        $error = "PAYPAL_UNABLE_TO_CONNECT";
     }
 
-    $template->param(
-        borrower      => scalar Koha::Patrons->find($borrowernumber),
-        message       => $m,
-        message_value => $v,
-    );
-
-    $self->output_html( $template->output() );
+    
+    output_html_with_http_headers( $cgi, $cookie, $template->output, undef, { force_no_caching => 1 } ) if $error;
 }
 
 ## If your tool is complicated enough to needs it's own setting/configuration
@@ -255,8 +285,6 @@ sub configure {
             PayPalChargeDescription => $cgi->param('PayPalChargeDescription'),
             PayPalSandboxMode       => $cgi->param('PayPalSandboxMode'),
         };
-        use Data::Printer colored => 1;
-        p($data);
         $self->store_data($data);
         $self->go_home();
     }
@@ -316,19 +344,19 @@ sub uninstall() {
 #     return $spec;
 # }
 
-# sub api_namespace {
-#     my ( $self ) = @_;
-    
-#     return 'kitchensink';
-# }
+sub api_namespace {
+    my ( $self ) = @_;
 
-# sub static_routes {
-#     my ( $self, $args ) = @_;
+    return 'payviapaypal';
+}
 
-#     my $spec_str = $self->mbf_read('staticapi.json');
-#     my $spec     = decode_json($spec_str);
+sub static_routes {
+    my ( $self, $args ) = @_;
 
-#     return $spec;
-# }
+    my $spec_str = $self->mbf_read('staticapi.json');
+    my $spec     = decode_json($spec_str);
+
+    return $spec;
+}
 
 1;
