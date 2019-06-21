@@ -2,8 +2,17 @@
 [% INCLUDE 'doc-head-close.inc' %]
 [% BLOCK cssinclude %][% END %]
 <script>
-[% TRY %][% edsLang = "$plugin_dir/i18n/$lang"_".inc" %][% PROCESS "$edsLang" %]
-[% CATCH %][% PROCESS "$plugin_dir/i18n/default.inc" %][% END %]
+[% TRY %]
+    [% lang = "$plugin_dir/i18n/$lang_dialect"_".inc" %]
+    [% PROCESS "$lang" %]
+[% CATCH %]
+    [% TRY %]
+        [% lang = "$plugin_dir/i18n/$lang_all"_".inc" %]
+        [% PROCESS "$lang" %]
+    [% CATCH %]
+        [% PROCESS "$plugin_dir/i18n/default.inc" %]
+    [% END %]
+[% END %]
 </script>
 </head>
 
@@ -12,9 +21,9 @@
 
 <div class="main">
     <ul class="breadcrumb">
-        <li><a href="/cgi-bin/koha/opac-main.pl">Home</a> <span class="divider">&rsaquo;</span></li>
+        <li><a href="/cgi-bin/koha/opac-main.pl">[% TOKENS.home_breadcrumb %]</a> <span class="divider">&rsaquo;</span></li>
         <li><a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a> <span class="divider">&rsaquo;</span></li>
-        <li><a href="#" data-i18n="breadcrumb-title">Your payment</a></li>
+        <li><a href="#">[% TOKENS.your_payment_breadcrumb %]</a></li>
     </ul>
 
     <div class="container-fluid">
@@ -26,14 +35,14 @@
             </div>
             <div class="span10">
                 <div id="useraccount" class="maincontent">
-                    [% IF error %]
+                    [% IF error_token %]
                         <div id="error" class="dialog alert">
-                            <p class="error-title"><strong>Error:</strong> there was a problem processing your payment</p>
-                            <div class="error-body"></div>
+                            <p class="error-title"><strong>[% TOKENS.error %]:</strong> [% TOKENS.error_title %]</p>
+                            <div class="error-body">[% TOKENS.$error_token %]</div>
                         </div>
                     [% END %]
 
-                    <a href="/cgi-bin/koha/opac-account.pl">Return to fine details</a>
+                    <a href="/cgi-bin/koha/opac-account.pl">[% TOKENS.return %]</a>
                 </div> <!-- / #useraccount -->
             </div> <!-- / .span10 -->
         </div> <!-- / .row-fluid -->
@@ -43,28 +52,4 @@
 [% INCLUDE 'opac-bottom.inc' %]
 
 [% BLOCK jsinclude %]
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/CLDRPluralRuleParser/CLDRPluralRuleParser.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.messagestore.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.fallbacks.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.language.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.parser.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.emitter.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/lib/jquery.i18n/jquery.i18n.emitter.bidi.js"></script>
-    <script src="/api/v1/contrib/payviapaypal/static/js/i18n.js"></script>
-    <script>
-        //$(document).ready(function() {
-            $.i18n({locale: 'en'});
-            [% IF locale %]
-                $.i18n().locale = '[% locale | html %]';
-            [% END %]
-            $.i18n().load({
-                en: '/api/v1/contrib/payviapaypal/static/js/i18n/en.json',
-                es: '/api/v1/contrib/payviapaypal/static/js/i18n/es.json',
-            })
-            .done(function() {
-                $('.error-body').text($.i18n('[% error | html %]'));
-            });
-       //})
-    </script>
 [% END %]

@@ -14,50 +14,63 @@
     <h3>Koha: Pay via PayPal: Configuration</h3>
 
     <!-- Notice our form here has no 'action', this is good, it means that our forms will always get passed back to 'plugins/run.pl'. You could hard code it instead if you prefer -->
-    <form method="get">
+    <form class="form-horizontal" method="get">
         <!-- Always pass these two parameters so the plugin system knows what to execute! -->
         <input type="hidden" name="class" value="[% CLASS %]"/>
         <input type="hidden" name="method" value="[% METHOD %]"/>
+        <div class="form-group">
+            <label class="col-sm-offset-1 col-sm-2 control-label" for="PayPalUser">PayPal User: </label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="PayPalUser" value="[% PayPalUser %]"/>
+            </div>
+        </div>
 
-        <label for="PayPalUser">PayPal User: </label>
-        <input type="text" name="PayPalUser" value="[% PayPalUser %]"/>
+        <div class="form-group">
+            <label class="col-sm-offset-1 col-sm-2 control-label" for="PayPalPwd">PayPal Password: </label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="PayPalPwd" value="[% PayPalPwd %]"/>
+            </div>
+        </div>
 
-        <p>
+        <div class="form-group">
+            <label class="col-sm-offset-1 col-sm-2 control-label" for="PayPalSignature">PayPal Signature: </label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="PayPalSignature" value="[% PayPalSignature %]"/>
+            </div>
+        </div>
 
-        <label for="PayPalPwd">PayPal Password: </label>
-        <input type="text" name="PayPalPwd" value="[% PayPalPwd %]"/>
-
-        <p>
-
-        <label for="PayPalSignature">PayPal Signature: </label>
-        <input type="text" name="PayPalSignature" value="[% PayPalSignature %]"/>
-
-        <p>
-
-        <label for="PayPalChargeDescription">Charge Description: </label>
-        <input type="text" name="PayPalChargeDescription" value="[% PayPalChargeDescription %]"/>
-
-        <p>
-
-        <label for="PayPalSandboxMode">Mode: </label>
-        <select name="PayPalSandboxMode">
-            [% IF PayPalSandboxMode == 1 %]
-                <option value="1" selected>Sandbox</option>
-            [% ELSE %]
-                <option value="1">Sandbox</option>
-            [% END %]
-            [% IF PayPalSandboxMode == 0 %]
-                <option value="0" selected>Production</option>
-            [% ELSE %]
-                <option value="0">Production</option>
-            [% END %]
-        </select>
-
-        <p>
+        <div class="form-group">
+            <label class="col-sm-offset-1 col-sm-2 control-label" for="PayPalChargeDescription">Charge Description: </label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="PayPalChargeDescription" value="[% PayPalChargeDescription %]"/>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="col-sm-offset-1 col-sm-2 control-label" for="PayPalSandboxMode">Mode: </label>
+            <div class="col-sm-8">
+                <select class="form-control" name="PayPalSandboxMode">
+                    [% IF PayPalSandboxMode == 1 %]
+                        <option value="1" selected>Sandbox</option>
+                    [% ELSE %]
+                        <option value="1">Sandbox</option>
+                    [% END %]
+                    [% IF PayPalSandboxMode == 0 %]
+                        <option value="0" selected>Production</option>
+                    [% ELSE %]
+                        <option value="0">Production</option>
+                    [% END %]
+                </select>
+            </div>
+        </div>
 
         <input type="hidden" name="save" value="1" />
 
-        <input type="submit" value="Save configuration" />
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+                <button class="btn btn-default" type="submit">Save configuration</button>
+            </div>
+        </div>
     </form>
 
 

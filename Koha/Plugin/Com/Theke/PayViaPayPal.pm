@@ -10,6 +10,7 @@ use base qw(Koha::Plugins::Base);
 use C4::Context;
 use C4::Output;
 use C4::Auth;
+use C4::Languages;
 use Koha::Patron;
 use Koha::DateUtils;
 use Koha::Libraries;
@@ -87,6 +88,15 @@ sub opac_online_payment_begin {
         }
     );
 
+    my $lang = C4::Languages::getlanguage($cgi);
+    my @lang_split = split /_/, $lang;
+
+    $template->param( 
+        lang_dialect => $lang,
+        lang_all => $lang_split[0],
+        plugin_dir => $self->bundle_path
+    );
+
     my $url =
       $self->retrieve_data('PayPalSandboxMode')
       ? 'https://api-3t.sandbox.paypal.com/nvp'
@@ -152,13 +162,13 @@ sub opac_online_payment_begin {
 
         }
         else {
-            $template->param( error => "PAYPAL_ERROR_PROCESSING" );
+            $template->param( error_token => "PAYPAL_ERROR_PROCESSING" );
             $error = 1;
         }
 
     }
     else {
-        $template->param( error => "PAYPAL_UNABLE_TO_CONNECT" );
+        $template->param( error_token => "PAYPAL_UNABLE_TO_CONNECT" );
         $error = 1;
     }
 
@@ -180,6 +190,15 @@ sub opac_online_payment_end {
             authnotrequired => 0,
             is_plugin       => 1,
         }
+    );
+
+    my $lang = C4::Languages::getlanguage($cgi);
+    my @lang_split = split /_/, $lang;
+
+    $template->param( 
+        lang_dialect => $lang,
+        lang_all => $lang_split[0],
+        plugin_dir => $self->bundle_path
     );
 
     my $active_currency = Koha::Acquisition::Currencies->get_active;
@@ -243,12 +262,14 @@ sub opac_online_payment_end {
             print $cgi->redirect("/cgi-bin/koha/opac-account.pl?payment=$amount")
         }
         else {
-            $error = "PAYPAL_ERROR_PROCESSING";
+            $template->param( error_token => "PAYPAL_ERROR_PROCESSING" );
+            $error = 1;
         }
 
     }
     else {
-        $error = "PAYPAL_UNABLE_TO_CONNECT";
+        $template->param( error_token => "PAYPAL_UNABLE_TO_CONNECT" );
+        $error = 1;
     }
 
     
