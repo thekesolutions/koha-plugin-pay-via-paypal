@@ -1,6 +1,10 @@
 [% INCLUDE 'doc-head-open.inc' %][% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Your payment
 [% INCLUDE 'doc-head-close.inc' %]
 [% BLOCK cssinclude %][% END %]
+<script>
+[% TRY %][% edsLang = "$plugin_dir/i18n/$lang"_".inc" %][% PROCESS "$edsLang" %]
+[% CATCH %][% PROCESS "$plugin_dir/i18n/default.inc" %][% END %]
+</script>
 </head>
 
 <body id="opac-account-pay-return" class="scrollto">
