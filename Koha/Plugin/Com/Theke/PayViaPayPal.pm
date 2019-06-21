@@ -89,7 +89,7 @@ sub opac_online_payment_begin {
     );
 
     my $lang = C4::Languages::getlanguage($cgi);
-    my @lang_split = split /_/, $lang;
+    my @lang_split = split /_|-/, $lang;
 
     $template->param( 
         lang_dialect => $lang,
@@ -162,7 +162,7 @@ sub opac_online_payment_begin {
 
         }
         else {
-            $template->param( error_token => "PAYPAL_ERROR_PROCESSING" );
+            $template->param( error_token => "PAYPAL_ERROR_STARTING" );
             $error = 1;
         }
 
@@ -193,7 +193,7 @@ sub opac_online_payment_end {
     );
 
     my $lang = C4::Languages::getlanguage($cgi);
-    my @lang_split = split /_/, $lang;
+    my @lang_split = split /_|-/, $lang;
 
     $template->param( 
         lang_dialect => $lang,

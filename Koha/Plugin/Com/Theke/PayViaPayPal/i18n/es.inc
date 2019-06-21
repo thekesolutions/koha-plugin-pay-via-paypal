@@ -7,6 +7,7 @@
             error_title = "Hubo un error al procesar su pago"
             PAYPAL_UNABLE_TO_CONNECT = "<p>No se pudo conectar a PayPal.</p><p>Por favor, intente más tarde.</p>"
             PAYPAL_ERROR_PROCESSING = "<p>No se pudo verificar su pago.</p><p>Por favor, contacte a su biblioteca para confirmar su pago.</p>"
+            PAYPAL_ERROR_STARTING = "<p>No se pudo comenzar con su pago.</p><p>Por favor, intente más tarde.</p>"
             return = "Volver al detalle de cuenta"
         } 
     %]
