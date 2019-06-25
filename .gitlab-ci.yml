@@ -1,0 +1,25 @@
+image: node:8-alpine
+
+stages:
+  - build
+  - release
+
+build:
+  stage: build
+  script:
+    - npm install
+    - gulp build
+  artifact:
+    name: "release-$CI_COMMIT_TAG"
+    paths:
+      - *.kpz
+  only:
+    - tags
+
+release:
+  stage: release
+  script:
+    - echo 'curl --header "Content-Type: application/json" --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" --data \'{ "name": "$(npm run name -s)", "tag_name": "$CI_COMMIT_TAG", "description": "Super nice release", "assets": { "links": [{ "name": "$(npm run name -s)", "url": "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_REF_NAME/raw/$(npm run kpz -s)?job=$CI_JOB_NAME" }] } }\' --request POST CI_API_V4_URL/projects/$CI_PROJECT_ID/releases'
+    - 'curl --header "Content-Type: application/json" --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" --data \'{ "name": "$(npm run name -s)", "tag_name": "$CI_COMMIT_TAG", "description": "Super nice release", "assets": { "links": [{ "name": "$(npm run name -s)", "url": "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_REF_NAME/raw/$(npm run kpz -s)?job=$CI_JOB_NAME" }] } }\' --request POST CI_API_V4_URL/projects/$CI_PROJECT_ID/releases'
+  only:
+    - tags

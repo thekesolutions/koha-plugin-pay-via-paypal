@@ -1,8 +1,7 @@
 {
-  "name": "koha-plugin-kitchen-sink",
-  "version": "2.1.25",
-  "previous_version": "2.1.24",
-  "description": "Koha Kitchen Sink Plugin",
+  "name": "koha-plugin-pay-via-paypal",
+  "version": "1.0.0",
+  "description": "Koha PayPal Plugin",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",
@@ -10,18 +9,20 @@
     "gulp-run": "^1.7.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "kpz": "echo -n ${npm_package_name}-v${npm_package_version}.kpz",
+    "name": "echo -n ${npm_package_name}"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bywatersolutions/koha-plugin-kitchen-sink.git"
+    "url": "git+https://gitlab.com/thekesolutions/plugins/koha-plugin-pay-via-paypal.git"
   },
-  "author": "Kyle M Hall <kyle@bywatersolutions.com>",
+  "author": "Agustin Moyano <agustinmoyano@theke.io>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/bywatersolutions/koha-plugin-kitchen-sink/issues"
+    "url": "https://gitlab.com/thekesolutions/plugins/koha-plugin-pay-via-paypal/issues"
   },
-  "homepage": "https://github.com/bywatersolutions/koha-plugin-kitchen-sink#readme",
+  "homepage": "https://gitlab.com/thekesolutions/plugins/koha-plugin-pay-via-paypal",
   "dependencies": {
     "datetime": "0.0.3",
     "jsonfile": "^4.0.0",
