@@ -6,7 +6,8 @@ stages:
 
 build: 
   stage: build
-  script: 
+  script:
+    - apk add --update zip 
     - npm install
     - npm install -g gulp-cli
     - gulp build
