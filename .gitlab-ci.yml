@@ -9,7 +9,7 @@ build:
   script: 
     - "npm install"
     - "gulp build"
-  artifact: 
+  artifacts: 
     name: release-$CI_COMMIT_TAG
     paths: 
       - "*.kpz"
