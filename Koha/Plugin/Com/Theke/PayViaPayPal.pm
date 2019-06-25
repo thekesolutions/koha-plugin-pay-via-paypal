@@ -276,6 +276,11 @@ sub opac_online_payment_end {
     output_html_with_http_headers( $cgi, $cookie, $template->output, undef, { force_no_caching => 1 } ) if $error;
 }
 
+sub opac_online_payment_threshold {
+    my ( $self, $args ) = @_;
+    return $self->retrieve_data('threshold')||0;
+}
+
 ## If your tool is complicated enough to needs it's own setting/configuration
 ## you will want to add a 'configure' method to your plugin like so.
 ## Here I am throwing all the logic into the 'configure' method, but it could
@@ -294,6 +299,7 @@ sub configure {
             PayPalSignature         => $self->retrieve_data('PayPalSignature'),
             PayPalChargeDescription => $self->retrieve_data('PayPalChargeDescription'),
             PayPalSandboxMode       => $self->retrieve_data('PayPalSandboxMode'),
+            threshold               => $self->retrieve_data('threshold'),
         );
 
         $self->output_html( $template->output() );
@@ -305,6 +311,7 @@ sub configure {
             PayPalSignature         => $cgi->param('PayPalSignature'),
             PayPalChargeDescription => $cgi->param('PayPalChargeDescription'),
             PayPalSandboxMode       => $cgi->param('PayPalSandboxMode'),
+            threshold               => $cgi->param('threshold'),
         };
         $self->store_data($data);
         $self->go_home();
