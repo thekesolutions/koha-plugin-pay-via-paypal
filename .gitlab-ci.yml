@@ -13,7 +13,7 @@ build:
   artifacts: 
     name: release-$CI_COMMIT_TAG
     paths: 
-      - "*.kpz"
+      - ./*.kpz
   only: 
     - tags
   
