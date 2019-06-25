@@ -7,8 +7,9 @@ stages:
 build: 
   stage: build
   script: 
-    - "npm install"
-    - "gulp build"
+    - npm install
+    - npm install -g gulp-cli
+    - gulp build
   artifacts: 
     name: release-$CI_COMMIT_TAG
     paths: 
