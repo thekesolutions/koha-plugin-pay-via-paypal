@@ -34,14 +34,16 @@ const dir_stream = new Readable({
             }
         }
         let next = false;
-        do {
-            if(!this.files.length) {
-                console.log('fin de archivos');
-                this.push(null);
-                break;
-            }
-            next = this.push(this.files.pop());
-        } while(next);
+        process.nextTick(() => {
+            do {
+                if(!this.files.length) {
+                    console.log('fin de archivos');
+                    this.push(null);
+                    break;
+                }
+                next = this.push(this.files.pop());
+            } while(next);
+        })
     }
 });
 
@@ -89,8 +91,8 @@ const read_po = new Transform({
                 errors.push(e);
             }
         });
-        if(errors.length) return callback(errors.join('\n\n'));
-        callback(null, lang);
+        if(errors.length) return process.nextTick(() => { callback(errors.join('\n\n')) });
+        process.nextTick(() => { callback(null, lang) });
     }
 });
 
@@ -101,7 +103,7 @@ const translate = new Transform({
         for(let key in tokens) {
             lang.translated[key] = lang.translations[tokens[key]]||tokens[key];
         }
-        callback(null, lang);
+        process.nextTick(() => { callback(null, lang) });
     }
 });
 
@@ -113,7 +115,7 @@ const write_file = new Writable({
             .join('\n');
         let content = '/*\n\t[%\n\t\tTOKENS = {\n'+trbody+'\n\t\t}\n\t%]\n*/';
         let dst_file = path.join(dest, lang.lang+'.inc');
-        fs.writeFileSync(dst_file, content);
+        process.nextTick(() => { fs.writeFileSync(dst_file, content) });
         callback();
     }
 });
