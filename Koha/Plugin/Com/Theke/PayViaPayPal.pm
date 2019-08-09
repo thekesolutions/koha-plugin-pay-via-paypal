@@ -26,7 +26,7 @@ use URI::Escape qw(uri_unescape);
 use LWP::UserAgent;
 
 ## Here we set our plugin version
-our $VERSION = "1.0";
+our $VERSION = "{VERSION}";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
@@ -34,7 +34,7 @@ our $metadata = {
     author          => 'Agustín Moyano',
     date_authored   => '2019-06-13',
     date_updated    => "1900-01-01",
-    minimum_version => '18.05.00.000',
+    minimum_version => '18.11.00.000',
     maximum_version => undef,
     version         => $VERSION,
     description     => 'This plugin implements payment method via PayPal',
