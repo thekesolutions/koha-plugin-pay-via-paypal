@@ -1,6 +1,6 @@
 {
   "name": "koha-plugin-pay-via-paypal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Koha PayPal Plugin",
   "devDependencies": {
     "gulp": "^3.9.1",
