@@ -318,44 +318,6 @@ sub configure {
     }
 }
 
-## This is the 'install' method. Any database tables or other setup that should
-## be done when the plugin if first installed should be executed in this method.
-## The installation method should always return true if the installation succeeded
-## or false if it failed.
-sub install() {
-    my ( $self, $args ) = @_;
-
-    my $table = $self->get_qualified_table_name('mytable');
-
-    return C4::Context->dbh->do( "
-        CREATE TABLE IF NOT EXISTS $table (
-            `borrowernumber` INT( 11 ) NOT NULL
-        ) ENGINE = INNODB;
-    " );
-}
-
-## This is the 'upgrade' method. It will be triggered when a newer version of a
-## plugin is installed over an existing older version of a plugin
-sub upgrade {
-    my ( $self, $args ) = @_;
-
-    my $dt = dt_from_string();
-    $self->store_data( { last_upgraded => $dt->ymd('-') . ' ' . $dt->hms(':') } );
-
-    return 1;
-}
-
-## This method will be run just before the plugin files are deleted
-## when a plugin is uninstalled. It is good practice to clean up
-## after ourselves!
-sub uninstall() {
-    my ( $self, $args ) = @_;
-
-    my $table = $self->get_qualified_table_name('mytable');
-
-    return C4::Context->dbh->do("DROP TABLE IF EXISTS $table");
-}
-
 ## API methods
 # If your plugin implements API routes, then the 'api_routes' method needs
 # to be implemented, returning valid OpenAPI 2.0 paths serialized as a hashref.
@@ -376,15 +338,6 @@ sub api_namespace {
     my ( $self ) = @_;
 
     return 'payviapaypal';
-}
-
-sub static_routes {
-    my ( $self, $args ) = @_;
-
-    my $spec_str = $self->mbf_read('staticapi.json');
-    my $spec     = decode_json($spec_str);
-
-    return $spec;
 }
 
 1;
