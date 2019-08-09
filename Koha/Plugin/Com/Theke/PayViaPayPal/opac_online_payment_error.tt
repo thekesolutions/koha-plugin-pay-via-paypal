@@ -41,7 +41,7 @@
                             <div class="error-body">
                                 <p>[% TOKENS.$error_token %]</p>
                                 <p>
-                                    [% IF error_token eq 'PAYPAL_ERROR_PROCESSING' %]
+                                    [% IF error_token == 'PAYPAL_ERROR_PROCESSING' %]
                                         [% TOKENS.PAYPAL_CONTACT_LIBRARY %]
                                     [% ELSE %]
                                         [% TOKENS.PAYPAL_TRY_LATER %]
