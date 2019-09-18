@@ -294,28 +294,40 @@ sub configure {
 
         ## Grab the values we already have for our settings, if any exist
         $template->param(
-            PayPalUser              => $self->retrieve_data('PayPalUser'),
-            PayPalPwd               => $self->retrieve_data('PayPalPwd'),
-            PayPalSignature         => $self->retrieve_data('PayPalSignature'),
-            PayPalChargeDescription => $self->retrieve_data('PayPalChargeDescription'),
             PayPalSandboxMode       => $self->retrieve_data('PayPalSandboxMode'),
-            threshold               => $self->retrieve_data('threshold'),
         );
 
         $self->output_html( $template->output() );
     }
     else {
         my $data = {
-            PayPalUser              => $cgi->param('PayPalUser'),
-            PayPalPwd               => $cgi->param('PayPalPwd'),
-            PayPalSignature         => $cgi->param('PayPalSignature'),
-            PayPalChargeDescription => $cgi->param('PayPalChargeDescription'),
             PayPalSandboxMode       => $cgi->param('PayPalSandboxMode'),
-            threshold               => $cgi->param('threshold'),
         };
         $self->store_data($data);
         $self->go_home();
     }
+}
+
+sub install {
+    my ( $self, $args ) = @_;
+
+    my $paypal = $self->get_qualified_table_name('pay_via_paypal');
+
+    C4::Context->dbh->do(qq{
+        CREATE TABLE IF NOT EXISTS $paypal (
+            `id`                    INT(11) NOT NULL AUTO_INCREMENT,
+            `library_id`            VARCHAR(10) DEFAULT NULL,
+            `active`                BOOLEAN NOT NULL DEFAULT TRUE,
+            `user`                  VARCHAR(250) NOT NULL,
+            `pwd`                   VARCHAR(250) NOT NULL,
+            `signature`             VARCHAR(250) NOT NULL,
+            `charge_description`    VARCHAR(250) NOT NULL,
+            `theshold`              INT(11) NOT NULL DEFAULT 0
+            PRIMARY KEY (`id`),
+            KEY `status` (`status`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    });
+
 }
 
 1;
