@@ -4,6 +4,9 @@
 
 <script>
 export default {
-  name: 'Configure'
+  name: 'Configure',
+  async fetch ({ store, params }) {
+    await store.dispatch('get_configs')
+  }
 }
 </script>
