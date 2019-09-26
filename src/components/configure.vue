@@ -1,9 +1,21 @@
 <template>
   <v-content>
     <v-container>
-      <v-card>
+      <v-card v-if="fields.general">
         <v-card-title>
-          <v-flex>Configure</v-flex>
+          Plugin configuration
+        </v-card-title>
+        <v-card-text>
+          <v-form>
+            <form-element v-for="(field, i) in fields" :key="i" field="field" />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+        </v-card-actions>
+      </v-card>
+      <v-card v-if="fields.libraries">
+        <v-card-title>
+          <v-flex>Plugin configuration per library</v-flex>
         </v-card-title>
         <v-row>
           <v-col>
@@ -11,7 +23,7 @@
               left
             >
               <v-list>
-                <v-list-item-group v-model="selected" color="primary">
+                <v-list-item-group v-model="selected_idx" color="primary">
                   <v-list-item
                     v-for="(item, i) in items"
                     :key="i"
@@ -29,6 +41,9 @@
           </v-col>
           <v-col>
             <v-card-text>
+              <v-form v-if="selected">
+                <v-text-field v-if="selected.type != 'select' || selected.type != 'textarea'" :type="selected.type" :label="selected.label" :required="selected.required" />
+              </v-form>
             </v-card-text>
           </v-col>
         </v-row>
@@ -39,12 +54,16 @@
 
 <script>
 import { mapState } from 'vuex'
+import formElement from '~/components/form-element'
 
 export default {
   name: 'Configure',
+  components: {
+    formElement
+  },
   data () {
     return {
-      selected: 0
+      selected_idx: 0
     }
   },
   computed: {
@@ -53,7 +72,14 @@ export default {
     }),
     ...mapState('libraries', {
       libraries: 'list'
-    })
+    }),
+    ...mapState('fields', {
+      fields: 'list'
+    }),
+    selected () {
+      if (!this.items || this.items.length) { return null }
+      return this.items[this.selected_idx]
+    }
   },
   async fetch ({ store, params }) {
     await store.dispatch('get_configs')
@@ -64,11 +90,6 @@ export default {
       if (!this.libraries || !this.libraries.length) { return '' }
       return this.libraries.filter(library => library.library_id === id)[0].name
     }
-    // get_selected () {
-    //   if (!this.items || !this.items.length) { return null }
-    //   if (!this.selected) { this.selected = this.items[0] }
-    //   return this.selected
-    // }
   }
 }
 </script>

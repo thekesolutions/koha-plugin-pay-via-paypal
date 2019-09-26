@@ -20,12 +20,15 @@ export const actions = {
       -  user:
           label: PayPal user
           type: text
+          required: true
       -  pwd:
           label: PayPal password
           type: text
+          required: true
       -  signature:
           label: PayPal signature
           type: text
+          required: true
       -  charge_description:
           label: Charge description
           type: text
