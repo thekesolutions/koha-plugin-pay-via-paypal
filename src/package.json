@@ -12,8 +12,13 @@
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
   "dependencies": {
+    "@koumoul/vuetify-jsonschema-form": "^0.32.1",
     "@nuxtjs/axios": "^5.3.6",
+    "lodash": "^4.17.15",
     "nuxt": "^2.0.0",
+    "vue-color": "^2.7.0",
+    "vue-swatches": "^1.0.4",
+    "vuedraggable": "^2.23.1",
     "yaml": "^1.6.0"
   },
   "devDependencies": {

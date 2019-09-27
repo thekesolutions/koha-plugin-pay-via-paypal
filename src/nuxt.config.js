@@ -25,11 +25,15 @@ export default {
   ** Global CSS
   */
   css: [
+    '@koumoul/vuetify-jsonschema-form/dist/main.css'
   ],
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~/plugins/draggable.js',
+    '~/plugins/color.js',
+    '~/plugins/swatches.js'
   ],
   /*
   ** Nuxt.js dev-modules
