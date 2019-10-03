@@ -10,12 +10,11 @@
             <v-jsonschema-form
               v-if="schema"
               :schema="schema"
-              :model="confs"
+              :model="dummy"
               :options="options"
             />
           </v-form>
-          {{ confs }}
-          {{ schema }}
+
         </v-card-text>
         <v-card-actions>
         </v-card-actions>
@@ -38,8 +37,29 @@ export default {
     return {
       selected_idx: 0,
       general: {},
+      dummy: {
+        fruits: [
+          'apple',
+          'orange',
+          'pear'
+        ],
+        vegetables: [
+          {
+            veggieName: 'potato',
+            veggieLike: true
+          },
+          {
+            veggieName: 'broccoli',
+            veggieLike: false
+          }
+        ]
+      },
       options: {
-        debug: true
+        debug: true,
+        disableAll: false,
+        autoFoldObjects: true,
+        context: { owner: { type: 'organization', id: '5a5dc47163ebd4a6f438589b' } },
+        accordionMode: 'normal'
       }
     }
   },

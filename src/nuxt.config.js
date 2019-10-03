@@ -40,7 +40,7 @@ export default {
   */
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
-    '@nuxtjs/eslint-module',
+    ['@nuxtjs/eslint-module', { failOnError: false }],
     '@nuxtjs/vuetify'
   ],
   /*
@@ -85,6 +85,11 @@ export default {
     ** You can extend webpack config here
     */
     extend (config, ctx) {
+    },
+    hotMiddleware: {
+      client: {
+        overlay: false
+      }
     },
     publicPath: '/api/v1/contrib/paypal/static/_nuxt/'
   },
