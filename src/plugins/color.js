@@ -1,4 +1,4 @@
 import Vue from 'vue'
 import { Sketch } from 'vue-color'
 
-Vue.component('draggable', Sketch)
+Vue.component('color-picker', Sketch)

@@ -12,7 +12,20 @@
               :schema="schema"
               :model="dummy"
               :options="options"
-            />
+            >
+              <template #custom-library="{ fullSchema, modelWrapper, modelKey, rules, fullKey }">
+                <v-select
+                  v-model="modelWrapper[modelKey]"
+                  :name="fullKey"
+                  :label="fullSchema.title || (typeof modelKey === 'string' ? modelKey : '')"
+                  :rules="rules"
+                  :items="libraries"
+                  item-text="name"
+                  item-value="library_id"
+                  >
+                </v-select>
+              </template>
+            </v-jsonschema-form>
           </v-form>
 
         </v-card-text>
