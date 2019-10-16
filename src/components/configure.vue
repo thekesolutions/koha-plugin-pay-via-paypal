@@ -29,13 +29,17 @@
             <v-row>
               <v-col md="auto">
                 <v-navigation-drawer
-                  :mini-variant.sync="mini"
+                  :mini-variant="mini"
                   permanent
                 >
                   <v-list-item>
+
+                    <v-btn icon class="rotatable" :class="{'rotate': mini}" @click="mini = !mini" >
+                      <v-icon>mdi-chevron-left</v-icon>
+                    </v-btn>
+
                     <v-slide-x-transition>
                       <v-autocomplete
-                        v-show="!mini"
                         :items="unconfLibraries()"
                         item-text="name"
                         item-value="library_id"
@@ -48,10 +52,6 @@
 
                     <v-btn icon @click="addLibrary()">
                       <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-
-                    <v-btn icon class="rotatable" :class="{'rotate': mini}" @click="mini = !mini" >
-                      <v-icon>mdi-chevron-left</v-icon>
                     </v-btn>
 
                   </v-list-item>
@@ -93,14 +93,17 @@
                         </v-checkbox>
                       </v-col>
                     </template>
-                    <template #custom-inherit="{ schema, modelWrapper, modelKey }" v-if="cl.library_id != null">
+                    <template #custom-inherit="{ schema, modelWrapper, modelKey, modelRoot, options, fullKey, required }" v-if="cl.library_id != null">
                       <v-col cols="10">
                         <property
                           v-if="!schema['x-set-inherit']"
                           :schema="schema"
                           :model-wrapper="modelWrapper"
                           :model-key="modelKey"
-                          :options="{}"
+                          :parent-key="fullKey"
+                          :model-root="modelRoot"
+                          :required="required"
+                          :options="options"
                         />
                       </v-col>
                     </template>
