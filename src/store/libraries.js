@@ -21,7 +21,7 @@ export const actions = {
 { "address1":"Chestnut Hollow","address2":null,"address3":null,"city":null,"country":null,"email":null,"fax":null,"geolocation":null,"ip":null,"library_id":"UPL","marc_org_code":null,"name":"Union","notes":null,"opac_info":null,"phone":null,"pickup_location":true,"postal_code":null,"reply_to_email":null,"return_path_email":null,"state":null,"url":null }
       ]`)
     }
-    data.unshift({ library_id: null, name: 'Default' })
+    data.unshift({ library_id: null, name: 'All libraries' })
     commit('set_libraries', data)
   }
 }

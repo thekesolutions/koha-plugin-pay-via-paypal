@@ -1,19 +1,23 @@
 export const state = () => ({
-  confs: {},
+  general: {},
+  libConfs: [],
   saved: false,
   clean: true
 })
 
 export const actions = {
   async get_configs ({ commit, dispatch }) {
+    dispatch('schema/get_schema')
+    dispatch('libraries/get_libraries')
+
     let { data } = await this.$axios.$get('/api/v1/contrib/paypal/configs')
     if (!data) {
       // throw new Error('Could not get configuration list')
-      data = { PayPalSandboxMode: false, libraries: [{ library_id: null }, { library_id: 'CPL' }] }
+      data = { general: { PayPalSandboxMode: false }, libraries: [{ active: true, library_id: null }, { active: false, library_id: 'CPL' }] }
     }
-    commit('set_confs', data)
-    dispatch('schema/get_schema')
-    dispatch('libraries/get_libraries')
+
+    commit('set_general_confs', data.general)
+    commit('set_library_confs', data.libraries)
   },
   async save ({ commit }, data) {
 
@@ -21,8 +25,11 @@ export const actions = {
 }
 
 export const mutations = {
-  set_confs (state, data) {
-    state.confs = data
+  set_general_confs (state, data) {
+    state.general = data
+  },
+  set_library_confs (state, data) {
+    state.libConfs = data
   }
 }
 

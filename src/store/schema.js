@@ -11,52 +11,54 @@ export const actions = {
       data = `
       $id: https://example.com/person.schema.json
       $schema: http://json-schema.org/draft-07/schema#
-      title: Configure plugin
-      description: Configure PayPal plugin
       type: object
-      allOf:
-      -  $ref: "#/definitions/generalOptions"
-      -  $ref: "#/definitions/perLibraryOptions"
-      definitions:
+      properties:
         generalOptions:
-          title: General options
           type: object
           properties:
             PayPalSandboxMode:
               title: Sandbox mode?
               type: boolean
         perLibraryOptions:
-          title: Per library options
           type: object
+          required: ['library_id']
           properties:
-            libraries:
-              type: array
-              items:
-                type: object
-                required: ['user', 'pwd', 'signature', 'library']
-                properties:
-                  library:
-                    type: string
-                    title: Library
-                    x-display: custom-library
-                  active:
-                    title: Is Active?
-                    type: boolean
-                  user:
-                    title: PayPal user
-                    type: string
-                  pwd:
-                    title: PayPal password
-                    type: string
-                  signature:
-                    title: PayPal signature
-                    type: string
-                  charge_description:
-                    title: Charge description
-                    type: string
-                  threshold:
-                    title: Mimimum payment threshold
-                    type: number
+            library_id:
+              type: string
+              title: Library
+              x-display: hidden
+            active:
+              title: Is Active?
+              type: boolean
+          dependencies:
+            active:
+              required: ['user', 'pwd', 'signature', 'library_id']
+              properties:              
+                user:
+                  title: PayPal user
+                  type: string
+                  x-display: custom-inherit
+                  x-class: row mx-0
+                pwd:
+                  title: PayPal password
+                  type: string
+                  x-display: custom-inherit
+                  x-class: row mx-0
+                signature:
+                  title: PayPal signature
+                  type: string
+                  x-display: custom-inherit
+                  x-class: row mx-0
+                charge_description:
+                  title: Charge description
+                  type: string
+                  x-display: custom-inherit
+                  x-class: row mx-0
+                threshold:
+                  title: Mimimum payment threshold
+                  type: number
+                  x-display: custom-inherit
+                  x-class: row mx-0
       `
     }
     commit('set_fields', YAML.parse(data))
