@@ -1,8 +1,8 @@
 export const state = () => ({
   general: {},
   libConfs: [],
-  saved: false,
-  clean: true
+  clean: true,
+  snackbar: false
 })
 
 export const actions = {
@@ -16,20 +16,38 @@ export const actions = {
       data = { general: { PayPalSandboxMode: false }, libraries: [{ active: true, library_id: null }, { active: false, library_id: 'CPL' }] }
     }
 
-    commit('set_general_confs', data.general)
-    commit('set_library_confs', data.libraries)
+    commit('general_confs', data.general)
+    commit('library_confs', data.libraries)
   },
-  async save ({ commit }, data) {
-
+  async save ({ commit, state }) {
+    if (state.clean) {
+      return commit('snackbar', { type: 'info', message: 'There is nothing to save' })
+    }
+    if (state.schema.schema.properties.generalOptions) {
+      await this.$axios.$post('/api/v1/contrib/paypal/configs/general', state.general)
+    }
+    if (state.schema.schema.properties.perLibraryOptions) {
+      await this.$axios.$post('/api/v1/contrib/paypal/configs/library', state.libConfs)
+    }
+    commit('clean')
+    commit('snackbar', { type: 'success', message: 'Configurations where saved' })
   }
 }
 
 export const mutations = {
-  set_general_confs (state, data) {
+  general_confs (state, data) {
+    state.clean = false
     state.general = data
   },
-  set_library_confs (state, data) {
+  library_confs (state, data) {
+    state.clean = false
     state.libConfs = data
+  },
+  snackbar (state, data) {
+    state.snackbar = data
+  },
+  clean (state) {
+    state.clean = true
   }
 }
 
