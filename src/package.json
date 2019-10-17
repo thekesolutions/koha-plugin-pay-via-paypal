@@ -17,6 +17,7 @@
     "lodash": "^4.17.15",
     "nuxt": "^2.0.0",
     "random-material-color": "^1.0.5",
+    "vue-i18n": "^8.15.0",
     "yaml": "^1.6.0"
   },
   "devDependencies": {

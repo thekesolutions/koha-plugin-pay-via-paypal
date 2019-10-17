@@ -1,0 +1,10 @@
+{
+    "generalOps": {
+        "title": "Opciones generales",
+        "mode": "¿Modo de prueba?"
+    },
+    "perLibraryOps": {
+        "title": "Opciones por biblioteca",
+        "active": "¿Activado?"
+    }
+}

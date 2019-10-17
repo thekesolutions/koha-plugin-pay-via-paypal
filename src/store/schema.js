@@ -17,7 +17,7 @@ export const actions = {
           type: object
           properties:
             PayPalSandboxMode:
-              title: Sandbox mode?
+              title: {{generalOps.mode}}
               type: boolean
         perLibraryOptions:
           type: object
@@ -28,7 +28,7 @@ export const actions = {
               title: Library
               x-display: hidden
             active:
-              title: Is Active?
+              title: {{perLibraryOps.active}}
               type: boolean
           dependencies:
             active:
@@ -61,6 +61,10 @@ export const actions = {
                   x-class: row mx-0
       `
     }
+    data = data.replace(/\{\{([\w.]+)\}\}/g, (str, p1) => {
+      const trans = this.app.i18n.t(p1)
+      return trans
+    })
     commit('set_fields', YAML.parse(data))
   }
 }

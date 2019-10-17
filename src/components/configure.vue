@@ -7,9 +7,7 @@
             <v-icon>mdi-check</v-icon> Save
           </v-btn>
         </v-card-actions>
-        <v-card-title>
-          General options
-        </v-card-title>
+        <v-card-title v-t="'generalOps.title'" />
         <v-card-text>
           <v-form ref="gen_form" v-model="gen_form_valid">
             <v-jsonschema-form
@@ -21,9 +19,7 @@
         </v-card-text>
       </v-card>
       <v-card v-if="schema && schema.properties && schema.properties.perLibraryOptions">
-        <v-card-title>
-          Per library options
-        </v-card-title>
+        <v-card-title v-t="'perLibraryOps.title'" />
         <v-card-text>
           <v-row>
             <v-col md="auto">

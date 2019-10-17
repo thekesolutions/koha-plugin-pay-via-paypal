@@ -1,0 +1,10 @@
+{
+    "generalOps": {
+        "title": "General options",
+        "mode": "Sandbox mode?"
+    },
+    "perLibraryOps": {
+        "title": "Per library options",
+        "active": "Is Active?"
+    }
+}

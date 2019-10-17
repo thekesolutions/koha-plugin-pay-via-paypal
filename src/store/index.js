@@ -24,10 +24,13 @@ export const actions = {
       return commit('snackbar', { type: 'info', message: 'There is nothing to save' })
     }
     if (state.schema.schema.properties.generalOptions) {
-      await this.$axios.$post('/api/v1/contrib/paypal/configs/general', state.general)
+      const { data, headers } = await this.$axios.$post('/api/v1/contrib/paypal/configs/general', state.general)
+      console.log(data)
+      console.log(headers)
     }
     if (state.schema.schema.properties.perLibraryOptions) {
-      await this.$axios.$post('/api/v1/contrib/paypal/configs/library', state.libConfs)
+      const xx = await this.$axios.$post('/api/v1/contrib/paypal/configs/library', state.libConfs)
+      console.log(xx)
     }
     commit('clean')
     commit('snackbar', { type: 'success', message: 'Configurations where saved' })

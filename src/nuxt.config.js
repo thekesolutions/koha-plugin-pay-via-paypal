@@ -33,7 +33,8 @@ export default {
   plugins: [
     '~/plugins/draggable.js',
     '~/plugins/color.js',
-    '~/plugins/swatches.js'
+    '~/plugins/swatches.js',
+    '~/plugins/i18n.js'
   ],
   /*
   ** Nuxt.js dev-modules
