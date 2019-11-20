@@ -42,8 +42,9 @@ sub get_confs {
 
     return try {
         my @configs = $paypal->_fetch_confs;
+        my $sandbox = $paypal->retrieve_data('PayPalSandboxMode');
 
-        return $c->render( status => 200, openapi => {list => @configs} );
+        return $c->render( status => 200, openapi => {general => { PayPalSandboxMode => $sandbox }, libraries => @configs} );
     }
     catch {
         return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
