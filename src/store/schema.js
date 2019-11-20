@@ -35,27 +35,27 @@ export const actions = {
               required: ['user', 'pwd', 'signature', 'library_id']
               properties:              
                 user:
-                  title: PayPal user
+                  title: {{perLibraryOps.user}}
                   type: string
                   x-display: custom-inherit
                   x-class: row mx-0
                 pwd:
-                  title: PayPal password
+                  title: {{perLibraryOps.pass}}
                   type: string
                   x-display: custom-inherit
                   x-class: row mx-0
                 signature:
-                  title: PayPal signature
+                  title: {{perLibraryOps.sig}}
                   type: string
                   x-display: custom-inherit
                   x-class: row mx-0
                 charge_description:
-                  title: Charge description
+                  title: {{perLibraryOps.desc}}
                   type: string
                   x-display: custom-inherit
                   x-class: row mx-0
                 threshold:
-                  title: Mimimum payment threshold
+                  title: {{perLibraryOps.threshold}}
                   type: number
                   x-display: custom-inherit
                   x-class: row mx-0

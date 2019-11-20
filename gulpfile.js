@@ -10,7 +10,7 @@ const stream = require('stream');
 const dt = dateTime.create();
 const today = dt.format('Y-m-d');
 
-const package_json = JSON.parse(fs.readFileSync('./package.json'));
+const package_json = require('./package');
 const release_filename = `${package_json.name}-v${package_json.version}.kpz`;
 
 const pm_name = 'PayViaPayPal';
@@ -39,7 +39,25 @@ if(static_relative_path.length) {
 console.log(release_filename);
 console.log(pm_file_path_full_dist);
 
-gulp.task('static', ()=>{
+gulp.task('vue', ()=>{
+    if(!package_json.api_namespace) return;
+    var vue_path = path.join('.', package_json.vue_path||'src');
+    static_relative_path.push('_nuxt');
+    static_absolute_path = static_relative_path.map(dir=>path.join(pm_bundle_path, dir)+'/**/*');
+    return run(`
+        rm -rf ${vue_path}/dist ${pm_bundle_path}/_nuxt;
+        echo '{"path": "/api/v1/contrib/${package_json.api_namespace}/static/_nuxt"}' > ${vue_path}/koha-api.json;
+        cd ${vue_path};
+        npm i;
+        API_URL="/" npm run build;
+        cd ..;
+        sed -i -e "s/<\\/body>/\\[% INCLUDE 'intranet-bottom.inc' %\\]/g" ${vue_path}/dist/200.html;
+        cp ${vue_path}/dist/200.html ${pm_bundle_path}/configure.tt
+        cp -r ${vue_path}/dist/api/v1/contrib/${package_json.api_namespace}/static/_nuxt ${pm_bundle_path}
+    `).exec()
+})
+
+gulp.task('static', ['vue'], ()=>{
     if(static_absolute_path.length) {
         let spec_body = JSON.stringify({
             get: {

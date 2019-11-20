@@ -5,6 +5,37 @@
     },
     "perLibraryOps": {
         "title": "Per library options",
-        "active": "Is Active?"
+        "active": "Is Active?",
+        "user": "PayPal user",
+        "pass": "PayPal password",
+        "sig": "PayPal signature",
+        "desc": "Charge description",
+        "threshold": "Minimum payment threshold",
+        "using": "Using {name} from default options",
+        "use": "Use default option"
+    },
+    "save": "Save",
+    "addLib": "Add library",
+    "all": "All",
+    "allLibs": "All libraries",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "agree": "Agree",
+    "required": "This information is required",
+    "noSave": "There is nothing to save",
+    "saved": "Configurations where saved",
+    "dialog": {
+        "change": "Change current library?",
+        "invalid": "Some fields in this configuration are invalid.",
+        "warning": "If you continue, invalid data will use default options",
+        "continue": "Are you sure you want to continue?",
+        "mandatory": "Mandatory fields missing",
+        "error": "You cannot configure other libraries until all default values are valid",
+        "noDef": "Default configuration is deactivated, so all values must be valid"
+    },
+    "connection": {
+        "noConfigs": "Could not retrieve configurations. Please contact Koha administrator.",
+        "noLibs": "Could not retrieve libraries. Please contact Koha administrator.",
+        "noSchema": "Could not retrieve form schema. Please contact Koha administrator."
     }
 }

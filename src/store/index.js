@@ -10,30 +10,32 @@ export const actions = {
     dispatch('schema/get_schema')
     dispatch('libraries/get_libraries')
 
-    let { data } = await this.$axios.$get('/api/v1/contrib/paypal/configs')
-    if (!data) {
-      // throw new Error('Could not get configuration list')
-      data = { general: { PayPalSandboxMode: false }, libraries: [{ active: true, library_id: null }, { active: false, library_id: 'CPL' }] }
-    }
+    try {
+      let { data } = await this.$axios.$get('/api/v1/contrib/paypal/configs')
+      if (!data) {
+        // throw new Error('Could not get configuration list')
+        data = { general: { PayPalSandboxMode: false }, libraries: [{ active: true, library_id: null }, { active: false, library_id: 'CPL' }] }
+      }
 
-    commit('general_confs', data.general)
-    commit('library_confs', data.libraries)
+      commit('general_confs', data.general)
+      commit('library_confs', data.libraries)
+    } catch (e) {
+      console.log(e)
+      commit('snackbar', { type: 'error', message: this.app.i18n.t('connection.noConfigs') })
+    }
   },
   async save ({ commit, state }) {
     if (state.clean) {
-      return commit('snackbar', { type: 'info', message: 'There is nothing to save' })
+      return commit('snackbar', { type: 'info', message: this.app.i18n.t('noSave') })
     }
     if (state.schema.schema.properties.generalOptions) {
-      const { data, headers } = await this.$axios.$post('/api/v1/contrib/paypal/configs/general', state.general)
-      console.log(data)
-      console.log(headers)
+      await this.$axios.$post('/api/v1/contrib/paypal/configs/general', state.general)
     }
     if (state.schema.schema.properties.perLibraryOptions) {
-      const xx = await this.$axios.$post('/api/v1/contrib/paypal/configs/library', state.libConfs)
-      console.log(xx)
+      await this.$axios.$post('/api/v1/contrib/paypal/configs/library', state.libConfs)
     }
     commit('clean')
-    commit('snackbar', { type: 'success', message: 'Configurations where saved' })
+    commit('snackbar', { type: 'success', message: this.app.i18n.t('saved') })
   }
 }
 

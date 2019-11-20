@@ -5,6 +5,37 @@
     },
     "perLibraryOps": {
         "title": "Opciones por biblioteca",
-        "active": "¿Activado?"
+        "active": "¿Activado?",
+        "user": "Usuario de PayPal",
+        "pass": "Clave de PayPal",
+        "sig": "Firma de PayPal",
+        "desc": "Descripción del cargo",
+        "threshold": "Límite mínimo de pago",
+        "using": "Usando {name} desde las opciones por defecto",
+        "use": "Usar opción por defecto"
+    },
+    "save": "Guardar",
+    "addLib": "Agregar biblioteca",
+    "all": "Todas",
+    "allLibs": "Todas las bibliotecas",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "agree": "Aceptar",
+    "required": "Esta información es requerida",
+    "noSave": "No hay nada para guardar",
+    "saved": "Se guardaron las configuraciones",
+    "dialog": {
+        "change": "¿Cambiar la biblioteca actual?",
+        "invalid": "Algunos campos en esta configuración son inválidos.",
+        "warning": "Si continúa, los campos inválidos usarán los datos por defecto",
+        "continue": "¿Seguro que desea continuar?",
+        "mandatory": "Faltan campos obligatorios",
+        "error": "No puede configurar otras bibliotecas hasta que todos los valores por defecto sean válidos",
+        "noDef": "La configuración por defecto fue desactivada, por lo que todos los valores deber ser válidos"
+    },
+    "connection": {
+        "noConfigs": "No se pudieron obtener las configuraciones. Por favor, contacte a su administrador de Koha.",
+        "noLibs": "No se pudieron obtener las bibliotecas. Por favor, contacte a su administrador de Koha.",
+        "noSchema": "No se pudo obtener el esquema del formulario. Por favor, contacte a su administrador de Koha."
     }
 }

@@ -4,7 +4,7 @@
       <v-card v-if="schema && schema.properties && schema.properties.generalOptions">
         <v-card-actions>
           <v-btn :disabled="!gen_form_valid || !lib_form_valid" @click="save()">
-            <v-icon>mdi-check</v-icon> Save
+            <v-icon>mdi-check</v-icon> <span v-t="'save'" />
           </v-btn>
         </v-card-actions>
         <v-card-title v-t="'generalOps.title'" />
@@ -38,7 +38,7 @@
                       :items="unconfLibraries()"
                       item-text="name"
                       item-value="library_id"
-                      label="Add library"
+                      :label="$t('addLib')"
                       hint="Search to add a library"
                       @keyup.enter="addLibrary()"
                     />
@@ -51,10 +51,10 @@
                 <v-divider />
                 <v-list>
                   <v-list-item-group v-model="prev_selected_idx" mandatory color="primary">
-                    <v-list-item :inactive="selected_idx !== i" v-for="(cl, i) in libraryConfs" :key="i" @click.stop="checkForm($event, i)" :ref="'lib_'+i">
+                    <v-list-item v-for="(cl, i) in libraryConfs" :key="i" :ref="'lib_'+i" :inactive="selected_idx !== i" @click.stop="checkForm($event, i)">
                       <v-list-item-avatar>
                         <v-avatar :color="getColor(cl)" :class="getTextColor(cl)" class="font-weight-black">
-                          {{ cl.library_id || 'All' }}
+                          {{ cl.library_id || $t('all') }}
                         </v-avatar>
                       </v-list-item-avatar>
                       <v-list-item-content transition="fade-transition">
@@ -75,18 +75,18 @@
                     :model="cl"
                     :options="options"
                   >
-                    <template v-if="cl.library_id != null" #prepend-custom-inherit="{ model, modelWrapper, modelKey, schema }">
+                    <template v-if="cl.library_id != null && defaultActive" #prepend-custom-inherit="{ model, modelWrapper, modelKey, modelRoot, schema }">
                       <v-col :cols="schema['x-set-inherit']?12:2">
-                        <v-checkbox v-model="setInherit(schema, model)['x-set-inherit']" hint="Use default option" :persistent-hint="!schema['x-set-inherit']">
+                        <v-checkbox v-model="setInherit(schema, model)['x-set-inherit']" :hint="$t('perLibraryOps.use')" :persistent-hint="!schema['x-set-inherit']">
                           <template v-slot:label>
                             <div v-if="schema['x-set-inherit']">
-                              Using {{ schema.title || modelKey }} from default options
+                              {{ $t('perLibraryOps.using', { name: schema.title || modelKey }) }}
                             </div>
                           </template>
                         </v-checkbox>
                       </v-col>
                     </template>
-                    <template v-if="cl.library_id != null" #custom-inherit="{ schema, modelWrapper, modelKey, modelRoot, options, fullKey, required }">
+                    <template v-if="cl.library_id != null && defaultActive" #custom-inherit="{ schema, modelWrapper, modelKey, modelRoot, options, fullKey, required }">
                       <v-col cols="10">
                         <property
                           v-if="!schema['x-set-inherit']"
@@ -104,79 +104,66 @@
                 </template>
               </v-form>
               <v-dialog
-                v-model="dialog"
+                v-model="libDialog"
                 max-width="600"
-                v-if="selected_idx > 0">
+              >
                 <v-card>
-                  <v-card-title class="headline">Change current library?</v-card-title>
+                  <v-card-title v-t="'dialog.change'" class="headline" />
 
                   <v-card-text>
                     <v-list>
-                      <v-list-item class="body-1">
-                        Some fields in this configuration are invalid.
-                      </v-list-item>
+                      <v-list-item v-t="'dialog.invalid'" class="body-1" />
                       <v-list-item>
-                        <v-alert type="warning">
-                          If you continue, invalid data will use default options
-                        </v-alert>
+                        <v-alert v-t="'dialog.warning'" type="warning" />
                       </v-list-item>
-                      <v-list-item class="body-1">
-                        Are you sure you want to continue?
-                      </v-list-item>
+                      <v-list-item v-t="'dialog.continue'" class="body-1" />
                     </v-list>
                   </v-card-text>
 
                   <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer />
 
                     <v-btn
+                      v-t="'cancel'"
                       color="primary"
                       outlined
                       @click="dialog = false"
-                    >
-                      Cancel
-                    </v-btn>
+                    />
 
                     <v-btn
+                      v-t="'continue'"
                       color="primary"
                       outlined
                       @click="forcedContinue()"
-                    >
-                      Continue
-                    </v-btn>
+                    />
                   </v-card-actions>
                 </v-card>
               </v-dialog>
               <v-dialog
-                v-model="dialog"
+                v-model="defDialog"
                 max-width="600"
-                v-if="selected_idx === 0">
+              >
                 <v-card>
-                  <v-card-title class="headline">Mandatory fields missing</v-card-title>
+                  <v-card-title v-t="'dialog.mandatory'" class="headline" />
 
                   <v-card-text>
                     <v-list>
-                      <v-list-item class="body-1">
-                          Some fields in this configuration are invalid.
-                      </v-list-item>
+                      <v-list-item v-t="'dialog.invalid'" class="body-1" />
                       <v-list-item>
-                        <v-alert type="error">
-                          You cannot configure other libraries until all default values are valid
-                        </v-alert>
+                        <v-alert v-t="selected_idx===0?'dialog.error':'dialog.noDef'" type="error" />
                       </v-list-item>
                     </v-list>
                   </v-card-text>
 
                   <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer />
 
                     <v-btn
+                      v-t="'agree'"
                       color="primary"
                       outlined
                       @click="dialog = false"
-                    >
-                      Agree
-                    </v-btn>
+                    />
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -185,7 +172,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn :disabled="!gen_form_valid || !lib_form_valid" @click="save()">
-            <v-icon>mdi-check</v-icon> Save
+            <v-icon>mdi-check</v-icon> <span v-t="'save'" />
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -236,7 +223,8 @@ export default {
         debug: true,
         disableAll: false,
         autoFoldObjects: false,
-        accordionMode: 'normal'
+        accordionMode: 'normal',
+        requiredMessage: this.$t('required')
       }
     }
   },
@@ -264,6 +252,15 @@ export default {
       ...mapMutations('schema', {
         set: 'set_schema'
       })
+    },
+    defaultActive () {
+      return this.schema.properties.perLibraryOptions && this.schema.properties.perLibraryOptions.properties.active && this.libraryConfs.find(lib => lib.library_id === null).active
+    },
+    libDialog () {
+      return this.dialog && this.selected_idx > 0 && this.defaultActive
+    },
+    defDialog () {
+      return this.dialog && (this.selected_idx === 0 || !this.defaultActive)
     }
   },
   async fetch ({ store, params }) {
@@ -284,13 +281,13 @@ export default {
       this.store()
     },
     getColor (conf) {
-      return rMC.getColor({ text: conf.library_id || 'All' })
+      return rMC.getColor({ text: conf.library_id || this.$t('all') })
     },
     getTextColor (conf) {
       return this.getContrastYIQ(this.getColor(conf))
     },
     getName (conf) {
-      if (!conf.library_id) { return 'All libraries' }
+      if (!conf.library_id) { return this.$t('allLibs') }
       if (!this.libraries || !this.libraries.length) { return '' }
       return this.libraries.find(library => library.library_id === conf.library_id).name
     },
@@ -321,8 +318,6 @@ export default {
       return schema
     },
     checkForm (event, i) {
-      console.log(event)
-      console.log(this.$refs.lib_form)
       if (!this.$refs.lib_form.validate()) {
         this.dialog = true
         this.$nextTick(() => {

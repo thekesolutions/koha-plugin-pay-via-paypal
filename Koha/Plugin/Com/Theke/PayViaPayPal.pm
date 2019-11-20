@@ -311,10 +311,10 @@ sub configure {
 sub install {
     my ( $self, $args ) = @_;
 
-    my $paypal = $self->get_qualified_table_name('pay_via_paypal');
+    my $table = $self->get_qualified_table_name('pay_via_paypal');
 
     C4::Context->dbh->do(qq{
-        CREATE TABLE IF NOT EXISTS $paypal (
+        CREATE TABLE IF NOT EXISTS $table (
             `id`                    INT(11) NOT NULL AUTO_INCREMENT,
             `library_id`            VARCHAR(10) DEFAULT NULL,
             `active`                BOOLEAN NOT NULL DEFAULT TRUE,
@@ -322,22 +322,70 @@ sub install {
             `pwd`                   VARCHAR(250) NOT NULL,
             `signature`             VARCHAR(250) NOT NULL,
             `charge_description`    VARCHAR(250) NOT NULL,
-            `theshold`              INT(11) NOT NULL DEFAULT 0
-            PRIMARY KEY (`id`),
-            KEY `status` (`status`)
+            `theshold`              INT(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     });
 
 }
 
-sub api_routes {
+sub uninstall() {
     my ( $self, $args ) = @_;
 
-    my $spec_str = $self->mbf_read('openapi.json');
-    my $spec     = decode_json($spec_str);
+    my $table = $self->get_qualified_table_name('pay_via_paypal');
 
-    return $spec;
+    return C4::Context->dbh->do("DROP TABLE IF EXISTS $table");
 }
+
+sub _fetch_confs {
+    my ( $self, $args ) = @_;
+
+    my $table = $self->get_qualified_table_name('pay_via_paypal');
+
+    return C4::Context->dbh->fetchrow_hashref(qq{
+        SELECT * FROM $table
+    });
+}
+
+sub _process_confs {
+    my ( $self, $args ) = @_;
+
+    my $table = $self->get_qualified_table_name('pay_via_paypal');
+
+    @rows = $args->{rows};
+
+    foreach $row (@rows) {
+        $exists = C4::Context->dbh->fetchrow_hashref(qq{
+            SELECT id FROM $table where library_id = ? or (library_id is null and ? is null)
+        }, undef, $row->{library_id}, $row->{library_id});
+        if($exists) {
+            C4::Context->dbh->do(qq{
+                UPDATE $table 
+                SET active = ?,
+                    user = ?,
+                    pwd = ?,
+                    signature = ?,
+                    charge_description = ?,
+                    threshold = ?
+                WHERE id = ?
+            }, undef, $row->{active}, $row->{user}, $row->{pwd}, $row->{signature}, $row->{charge_description}, $row->{threshold}, $exists->{id});
+        } else {
+            C4::Context->dbh->do(qq{
+                INSERT INTO $table (library_id, active, user, pwd, signature, charge_description, threshold)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            }, undef, $row->{library_id}, $row->{active}, $row->{user}, $row->{pwd}, $row->{signature}, $row->{charge_description}, $row->{threshold});
+        }
+    }
+}
+
+# sub api_routes {
+#     my ( $self, $args ) = @_;
+
+#     my $spec_str = $self->mbf_read('openapi.json');
+#     my $spec     = decode_json($spec_str);
+
+#     return $spec;
+# }
 
 sub api_namespace {
     my ( $self ) = @_;

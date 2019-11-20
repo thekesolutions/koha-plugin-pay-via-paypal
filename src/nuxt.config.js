@@ -1,4 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
+import koha_api from './koha-api.json'
 
 export default {
   mode: 'spa',
@@ -56,6 +57,7 @@ export default {
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
+    baseUrl: '/'
   },
   /*
   ** vuetify module configuration
@@ -101,7 +103,7 @@ export default {
         overlay: false
       }
     },
-    publicPath: '/api/v1/contrib/paypal/static/_nuxt/'
+    publicPath: koha_api.path
   },
   router: {
     extendRoutes (routes, resolve) {
@@ -118,7 +120,6 @@ export default {
           logo: 'components/VuetifyLogo'
         }
       }
-      console.log(routes);
     }
   }
 }
