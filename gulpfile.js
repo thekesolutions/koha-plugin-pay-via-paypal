@@ -22,13 +22,19 @@ const pm_file_path_full_dist = path.join(pm_file_path_dist, pm_file);
 const pm_bundle_path = path.join(pm_file_path, pm_name);
 
 /**
+ * Set any of this two variables to null to disable vue build
+ */
+
+const api_namespace = 'paypal';
+const vue_path = 'src';
+/**
  * 
  * Array of directories relative to pm_bundle_path where static files will be served
  * 
  * If no static files need to be served, set static_relative_path = []
  * 
  */
-const static_relative_path = ['schema'];
+const static_relative_path = ['schema', 'locales'];
 
 var static_absolute_path = [];
 
@@ -40,29 +46,30 @@ console.log(release_filename);
 console.log(pm_file_path_full_dist);
 
 gulp.task('vue', ()=>{
-    if(!package_json.api_namespace) return;
-    var vue_path = path.join('.', package_json.vue_path||'src');
+    if(!api_namespace || !vue_path) return;
     static_relative_path.push('_nuxt');
     static_absolute_path = static_relative_path.map(dir=>path.join(pm_bundle_path, dir)+'/**/*');
     return run(`
         rm -rf ${vue_path}/dist ${pm_bundle_path}/_nuxt;
-        echo '{"path": "/api/v1/contrib/${package_json.api_namespace}/static/_nuxt"}' > ${vue_path}/koha-api.json;
+        echo '{"path": "/api/v1/contrib/${api_namespace}"}' > ${vue_path}/koha-api.json;
         cd ${vue_path};
         npm i;
         API_URL="/" npm run build;
         cd ..;
         sed -i -e "s/<\\/body>/\\[% INCLUDE 'intranet-bottom.inc' %\\]/g" ${vue_path}/dist/200.html;
         cp ${vue_path}/dist/200.html ${pm_bundle_path}/configure.tt
-        cp -r ${vue_path}/dist/api/v1/contrib/${package_json.api_namespace}/static/_nuxt ${pm_bundle_path}
+        cp -r ${vue_path}/dist/api/v1/contrib/${api_namespace}/static/_nuxt ${pm_bundle_path}
     `).exec()
 })
 
-gulp.task('static', ['vue'], ()=>{
+const static = ()=>{
     if(static_absolute_path.length) {
+        const tags = ['pluginStatic'];
+        if(api_namespace) tags.push(api_namespace)
         let spec_body = JSON.stringify({
             get: {
                 'x-mojo-to': 'Static#get',
-                tags: ['pluginStatic'],
+                tags: tags,
                 responses: {
                     200: {
                         description: 'File found',
@@ -140,7 +147,11 @@ gulp.task('static', ['vue'], ()=>{
             })
             .pipe(gulp.dest(pm_bundle_path));
     }
-});
+};
+
+gulp.task('static:vue', ['vue'], static);
+
+gulp.task('static', static);
 
 const build = () => {
     run(`
@@ -156,9 +167,11 @@ const build = () => {
 
 };
 
-gulp.task('build', ['static'], build);
+gulp.task('build', ['static:vue'], build);
 
 gulp.task('build:perl', build);
+
+gulp.task('build:static', ['static'], build);
 
 gulp.task('release', () => {
     gulp.src(release_filename)

@@ -1,3 +1,5 @@
+import koha_api from '~/koha-api.json'
+
 export const state = () => ({
   general: {},
   libConfs: [],
@@ -11,7 +13,7 @@ export const actions = {
     dispatch('libraries/get_libraries')
 
     try {
-      const data = await this.$axios.$get('/api/v1/contrib/paypal/configs')
+      const data = await this.$axios.$get(koha_api.path +'/configs')
       
       if (!data.general) {
         data.general = { PayPalSandboxMode: false }
@@ -33,10 +35,10 @@ export const actions = {
       return commit('snackbar', { type: 'info', message: this.app.i18n.t('noSave') })
     }
     if (state.schema.schema.properties.generalOptions) {
-      await this.$axios.$post('/api/v1/contrib/paypal/configs/general', state.general)
+      await this.$axios.$post(koha_api.path +'/configs/general', state.general)
     }
     if (state.schema.schema.properties.perLibraryOptions) {
-      await this.$axios.$post('/api/v1/contrib/paypal/configs/library', state.libConfs)
+      await this.$axios.$post(koha_api.path +'/configs/library', state.libConfs)
     }
     commit('clean')
     commit('snackbar', { type: 'success', message: this.app.i18n.t('saved') })

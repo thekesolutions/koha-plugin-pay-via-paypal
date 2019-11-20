@@ -37,5 +37,140 @@
         }
       }
     }
+  },
+  "/configs/general": {
+    "post": {
+      "x-mojo-to": "Com::Theke::PayViaPayPal::ConfController#set_genelar",
+      "operationId": "SetPayPalGeneralConfs",
+      "tags": ["paypal"],
+      "produces": [
+        "application/json"
+      ],
+      "parameters": [
+        {
+          "name": "general",
+          "in": "body",
+          "required": true,
+          "schema":{
+            "type": "object",
+            "properties": {
+              "PayPalSandboxMode": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "General configurations saved"
+        },
+        "404": {
+          "description": "An error occured",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "An explanation for the error",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "An error occured",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "An explanation for the error",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/configs/library": {
+    "post": {
+      "x-mojo-to": "Com::Theke::PayViaPayPal::ConfController#set_libraries",
+      "operationId": "SetPayPalLibraryConfs",
+      "tags": ["paypal"],
+      "produces": [
+        "application/json"
+      ],
+      "parameters": [
+        {
+          "name": "libConfs",
+          "in": "body",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "library_id": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "user": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "pwd": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "signature": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "charge_description": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "threshold": {
+                  "type": "number",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Library configurations saved"
+        },
+        "404": {
+          "description": "An error occured",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "An explanation for the error",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "An error occured",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "An explanation for the error",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

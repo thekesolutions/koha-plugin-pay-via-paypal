@@ -1,21 +1,28 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
+import koha_api from '~/koha-api.json'
 
 Vue.use(VueI18n)
 
-export default ({ app, store }) => {
+export default async ({ app, store, $axios }) => {
   // Set i18n instance on app
   // This way we can use it in middleware and pages asyncData/fetch
   // const loadedLanguages = ['en']
-
+console.log(Vue)
+console.log($axios)
   const messages = {
-    'en': require('~/locales/en.json')
+    'en': await $axios.$get(koha_api.path+'/static/locales/en.json')
   }
 
   const lang = document.querySelector('html').getAttribute('lang') || 'en'
 
   if (lang !== 'en') {
-    messages[lang] = require('~/locales/' + lang + '.json')
+    try {
+      messages[lang] = await $axios.$get(koha_api.path+'/static/locales/' + lang + '.json')
+    } catch(e) {
+      console.warn('WARNING: could not load locale for '+lang)
+      console.log(e)
+    }
   }
 
   app.i18n = new VueI18n({

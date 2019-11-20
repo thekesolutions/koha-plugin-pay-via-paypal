@@ -1,4 +1,5 @@
 import YAML from 'yaml'
+import koha_api from '~/koha-api.json'
 
 export const state = () => ({
   schema: {}
@@ -6,7 +7,7 @@ export const state = () => ({
 
 export const actions = {
   async get_schema ({ commit }) {
-    let data = await this.$axios.$get('/api/v1/contrib/paypal/static/schema/schema.yaml')
+    let data = await this.$axios.$get(koha_api.path +'/static/schema/schema.yaml')
     // if (!data) {
     //   data = `
     //   $id: https://example.com/person.schema.json

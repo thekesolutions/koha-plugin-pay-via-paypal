@@ -21,7 +21,7 @@ properties:
         type: boolean
     dependencies:
       active:
-        required: ['user', 'pwd', 'signature', 'library_id']
+        required: ['user', 'pwd', 'signature']
         properties:              
           user:
             title: {{perLibraryOps.user}}

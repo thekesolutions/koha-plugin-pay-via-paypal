@@ -103,7 +103,7 @@ export default {
         overlay: false
       }
     },
-    publicPath: koha_api.path
+    publicPath: koha_api.path+'/static/_nuxt'
   },
   router: {
     extendRoutes (routes, resolve) {

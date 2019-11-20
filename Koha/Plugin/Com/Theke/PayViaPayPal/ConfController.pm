@@ -24,6 +24,9 @@ use Mojo::Base 'Mojolicious::Controller';
 use Try::Tiny;
 
 use Data::Printer colored=>1;
+
+my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
+
 =head1 API
 
 =head2 Class Methods
@@ -38,13 +41,55 @@ sub get_confs {
 
     my $c = shift->openapi->valid_input or return;
 
-    my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
-
     return try {
         my @configs = $paypal->_fetch_confs;
         my $sandbox = $paypal->retrieve_data('PayPalSandboxMode');
 
         return $c->render( status => 200, openapi => {general => { PayPalSandboxMode => $sandbox }, libraries => @configs} );
+    }
+    catch {
+        return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
+    }
+}
+
+=head3 set_genelar
+
+Set general configurations
+
+=cut
+
+sub set_genelar {
+
+    my $c = shift->openapi->valid_input or return;
+
+    my $general = $c->validation->param('general');
+
+    return try {
+        $paypal->store_data($general);
+
+        return $c->render( status => 200, openapi => {general => "General configurations saved"} );
+    }
+    catch {
+        return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
+    }
+}
+
+=head3 set_libraries
+
+Set library configurations
+
+=cut
+
+sub set_libraries {
+
+    my $c = shift->openapi->valid_input or return;
+
+    my @libConfs = $c->validation->param('libConfs');
+
+    return try {
+        $paypal->_process_confs({ rows => @libConfs });
+
+        return $c->render( status => 200, openapi => {general => "Library configurations saved"} );
     }
     catch {
         return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
