@@ -183,13 +183,17 @@
   </v-content>
 </template>
 
-<style>
+<style scoped>
 .rotate {
   transform: rotate(180deg)
 }
 
 .rotatable {
   transition: transform 300ms
+}
+
+button {
+  background-image: none
 }
 </style>
 

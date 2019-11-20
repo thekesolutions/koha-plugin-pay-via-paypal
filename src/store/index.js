@@ -11,10 +11,14 @@ export const actions = {
     dispatch('libraries/get_libraries')
 
     try {
-      let { data } = await this.$axios.$get('/api/v1/contrib/paypal/configs')
-      if (!data) {
+      const data = await this.$axios.$get('/api/v1/contrib/paypal/configs')
+      
+      if (!data.general) {
+        data.general = { PayPalSandboxMode: false }
+      }
+      if (!data.libraries || !data.libraries.length) {
         // throw new Error('Could not get configuration list')
-        data = { general: { PayPalSandboxMode: false }, libraries: [{ active: true, library_id: null }, { active: false, library_id: 'CPL' }] }
+        data.libraries = [{ active: true, library_id: null }]
       }
 
       commit('general_confs', data.general)

@@ -1,0 +1,41 @@
+{
+  "/configs": {
+    "get": {
+      "x-mojo-to": "Com::Theke::PayViaPayPal::ConfController#get_confs",
+      "operationId": "PayPalConfs",
+      "tags": ["paypal"],
+      "produces": [
+        "application/json"
+      ],
+      "responses": {
+        "200": {
+          "description": "PayPal configurations"
+        },
+        "404": {
+          "description": "An error occured",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "An explanation for the error",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "An error occured",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "An explanation for the error",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

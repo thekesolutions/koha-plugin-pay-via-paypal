@@ -28,7 +28,7 @@ const pm_bundle_path = path.join(pm_file_path, pm_name);
  * If no static files need to be served, set static_relative_path = []
  * 
  */
-const static_relative_path = [];
+const static_relative_path = ['schema'];
 
 var static_absolute_path = [];
 
@@ -142,7 +142,7 @@ gulp.task('static', ['vue'], ()=>{
     }
 });
 
-gulp.task('build', ['static'], () => {
+const build = () => {
     run(`
         mkdir dist ;
         cp -r Koha dist/. ;
@@ -154,7 +154,11 @@ gulp.task('build', ['static'], () => {
         rm -rf dist ;
     `).exec();
 
-});
+};
+
+gulp.task('build', ['static'], build);
+
+gulp.task('build:perl', build);
 
 gulp.task('release', () => {
     gulp.src(release_filename)

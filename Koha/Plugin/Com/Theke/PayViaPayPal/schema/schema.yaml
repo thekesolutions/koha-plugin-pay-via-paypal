@@ -1,0 +1,50 @@
+$id: https://theke.io/paypal.schema.yaml
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  generalOptions:
+    type: object
+    properties:
+      PayPalSandboxMode:
+        title: {{generalOps.mode}}
+        type: boolean
+  perLibraryOptions:
+    type: object
+    required: ['library_id']
+    properties:
+      library_id:
+        type: string
+        title: Library
+        x-display: hidden
+      active:
+        title: {{perLibraryOps.active}}
+        type: boolean
+    dependencies:
+      active:
+        required: ['user', 'pwd', 'signature', 'library_id']
+        properties:              
+          user:
+            title: {{perLibraryOps.user}}
+            type: string
+            x-display: custom-inherit
+            x-class: row mx-0
+          pwd:
+            title: {{perLibraryOps.pass}}
+            type: string
+            x-display: custom-inherit
+            x-class: row mx-0
+          signature:
+            title: {{perLibraryOps.sig}}
+            type: string
+            x-display: custom-inherit
+            x-class: row mx-0
+          charge_description:
+            title: {{perLibraryOps.desc}}
+            type: string
+            x-display: custom-inherit
+            x-class: row mx-0
+          threshold:
+            title: {{perLibraryOps.threshold}}
+            type: number
+            x-display: custom-inherit
+            x-class: row mx-0

@@ -341,10 +341,16 @@ sub _fetch_confs {
     my ( $self, $args ) = @_;
 
     my $table = $self->get_qualified_table_name('pay_via_paypal');
-
-    return C4::Context->dbh->fetchrow_hashref(qq{
+    my $query = qq{
         SELECT * FROM $table
-    });
+    };
+    my $sth = C4::Context->dbh->prepare($query);
+    $sth->execute();
+    my @results;
+    while ( my $row = $sth->fetchrow_hashref() ) {
+        push( @results, $row );
+    }
+    return @results;
 }
 
 sub _process_confs {
@@ -352,10 +358,10 @@ sub _process_confs {
 
     my $table = $self->get_qualified_table_name('pay_via_paypal');
 
-    @rows = $args->{rows};
+    my @rows = $args->{rows};
 
-    foreach $row (@rows) {
-        $exists = C4::Context->dbh->fetchrow_hashref(qq{
+    foreach my $row (@rows) {
+        my $exists = C4::Context->dbh->fetchrow_hashref(qq{
             SELECT id FROM $table where library_id = ? or (library_id is null and ? is null)
         }, undef, $row->{library_id}, $row->{library_id});
         if($exists) {
@@ -378,14 +384,14 @@ sub _process_confs {
     }
 }
 
-# sub api_routes {
-#     my ( $self, $args ) = @_;
+sub api_routes {
+    my ( $self, $args ) = @_;
 
-#     my $spec_str = $self->mbf_read('openapi.json');
-#     my $spec     = decode_json($spec_str);
+    my $spec_str = $self->mbf_read('openapi.json');
+    my $spec     = decode_json($spec_str);
 
-#     return $spec;
-# }
+    return $spec;
+}
 
 sub api_namespace {
     my ( $self ) = @_;
