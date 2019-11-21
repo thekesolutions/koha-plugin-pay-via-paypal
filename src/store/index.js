@@ -38,7 +38,17 @@ export const actions = {
       await this.$axios.$post(koha_api.path +'/configs/general', state.general)
     }
     if (state.schema.schema.properties.perLibraryOptions) {
-      await this.$axios.$post(koha_api.path +'/configs/library', state.libConfs)
+      //Koha's openapi version does not allow nullable properties in objects
+      //this hack is to filter null columns
+      const confs = [];
+      state.libConfs.forEach(conf => {
+        const tmpcnf = {}
+        Object.keys(conf)
+          .filter(key => conf[key] !== null)
+          .forEach(key => tmpcnf[key] = conf[key])
+        confs.push(tmpcnf)
+      })
+      await this.$axios.$post(koha_api.path +'/configs/library', confs)
     }
     commit('clean')
     commit('snackbar', { type: 'success', message: this.app.i18n.t('saved') })

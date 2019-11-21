@@ -24,6 +24,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Try::Tiny;
 
 use Data::Printer colored=>1;
+use Mojo::JSON;
 
 my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
 
@@ -45,7 +46,25 @@ sub get_confs {
         my @configs = $paypal->_fetch_confs;
         my $sandbox = $paypal->retrieve_data('PayPalSandboxMode');
 
-        return $c->render( status => 200, openapi => {general => { PayPalSandboxMode => $sandbox }, libraries => @configs} );
+        my $response = {};
+        my @filtered_confs;
+        foreach my $conf (@configs) {
+            foreach my $key (keys %$conf) {
+                $conf->{$key} = $conf->{$key}?Mojo::JSON->true:Mojo::JSON->false if $key eq 'active';
+                warn "$key ".$conf->{$key};
+                delete $conf->{$key} unless defined $conf->{$key}
+            }
+            push @filtered_confs, $conf;
+        }
+        $response->{libraries} = \@filtered_confs if scalar(@filtered_confs);
+
+        $response->{general} = {PayPalSandboxMode => $sandbox?Mojo::JSON->true:Mojo::JSON->false} if defined $sandbox;
+    
+    use Data::Printer colored => 1;
+
+    p $response;
+    
+        return $c->render( status => 200, openapi => $response );
     }
     catch {
         return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
@@ -64,7 +83,12 @@ sub set_genelar {
 
     my $general = $c->validation->param('general');
 
+use Data::Printer colored => 1;
+
+p $general;
+
     return try {
+        $general->{PayPalSandboxMode} = $general->{PayPalSandboxMode}?1:0;
         $paypal->store_data($general);
 
         return $c->render( status => 200, openapi => {general => "General configurations saved"} );
@@ -84,14 +108,21 @@ sub set_libraries {
 
     my $c = shift->openapi->valid_input or return;
 
-    my @libConfs = $c->validation->param('libConfs');
+    my $libConfs = $c->validation->every_param('libConfs');
+
+    use Data::Printer colored => 1;
+
+    p $libConfs;
+
+    p $c->validation;
 
     return try {
-        $paypal->_process_confs({ rows => @libConfs });
+        $paypal->_process_confs({ rows => $libConfs });
 
         return $c->render( status => 200, openapi => {general => "Library configurations saved"} );
     }
     catch {
+        warn $_->message;
         return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
     }
 }

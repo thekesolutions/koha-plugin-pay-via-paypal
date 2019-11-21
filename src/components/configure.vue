@@ -1,6 +1,7 @@
 <template>
   <v-content>
     <v-container>
+      {{ inherit }}
       <v-card v-if="schema && schema.properties && schema.properties.generalOptions">
         <v-card-actions>
           <v-btn :disabled="!gen_form_valid || !lib_form_valid" @click="save()">
@@ -75,11 +76,12 @@
                     :model="cl"
                     :options="options"
                   >
-                    <template v-if="cl.library_id != null && defaultActive" #prepend-custom-inherit="{ model, modelWrapper, modelKey, modelRoot, schema }">
-                      <v-col :cols="schema['x-set-inherit']?12:2">
-                        <v-checkbox v-model="setInherit(schema, model)['x-set-inherit']" :hint="$t('perLibraryOps.use')" :persistent-hint="!schema['x-set-inherit']">
+                    <template v-if="cl.library_id != null && defaultActive" #prepend-custom-inherit="{ model, modelWrapper, modelKey, modelRoot, schema, fullKey }">
+                      <v-col :cols="inherit[fullKey]?12:2">
+                        {{setInherit(schema, fullKey, model)}}
+                        <v-checkbox v-model="inherit[fullKey]" :hint="$t('perLibraryOps.use')" :persistent-hint="!inherit[fullKey]">
                           <template v-slot:label>
-                            <div v-if="schema['x-set-inherit']">
+                            <div v-if="inherit[fullKey]">
                               {{ $t('perLibraryOps.using', { name: schema.title || modelKey }) }}
                             </div>
                           </template>
@@ -89,7 +91,7 @@
                     <template v-if="cl.library_id != null && defaultActive" #custom-inherit="{ schema, modelWrapper, modelKey, modelRoot, options, fullKey, required }">
                       <v-col cols="10">
                         <property
-                          v-if="!schema['x-set-inherit']"
+                          v-if="!inherit[fullKey]"
                           :schema="schema"
                           :model-wrapper="modelWrapper"
                           :model-key="modelKey"
@@ -216,7 +218,7 @@ export default {
       prev_selected_idx: 0,
       next_selected_idx: 0,
       general: {},
-      dummy: {},
+      inherit: {},
       mini: false,
       default_inherit: [],
       library_add: null,
@@ -279,7 +281,27 @@ export default {
     ...mapActions({
       store: 'save'
     }),
+    setDefaultOptions () {
+      console.log(this.inherit)
+      for (let key in this.inherit) {
+        console.log(key)
+        if (this.inherit[key]) {
+          console.log(this.libraryConfs[this.selected_idx])
+          let nxt = key.split('.').reduce((prev, key, i) => {
+            if (i===0) return {prev, key}
+            return {prev: prev.prev, key}
+          }, this.libraryConfs[this.selected_idx])
+          nxt.prev[nxt.key] = null
+        }
+      }
+    },
     save () {
+      this.setDefaultOptions()
+      if (!this.$refs.lib_form.validate()) {
+        this.dialog = true
+        event.preventDefault()
+        return
+      }
       this.general_confs(_.merge({}, this.generalConfs))
       this.library_confs(_.merge([], this.libraryConfs))
       this.store()
@@ -315,13 +337,12 @@ export default {
     unconfLibraries () {
       return this.libraries.filter(lib => lib.library_id && !this.libraryConfs.find(conf => lib.library_id === conf.library_id))
     },
-    setInherit (schema, model) {
-      if (!schema.hasOwnProperty('x-set-inherit')) {
-        this.$set(schema, 'x-set-inherit', model === null)
-      }
-      return schema
+    setInherit (schema, key, model) {
+      this.$set(this.inherit, key, schema.hasOwnProperty('x-set-inherit')?schema['x-set-inherit']:model === null)
+      return this.inherit
     },
     checkForm (event, i) {
+      this.setDefaultOptions()
       if (!this.$refs.lib_form.validate()) {
         this.dialog = true
         this.$nextTick(() => {
@@ -333,6 +354,9 @@ export default {
       }
       this.$nextTick(() => {
         this.selected_idx = this.prev_selected_idx
+        Object.keys(this.inherit).forEach(key => {
+          this.$delete(this.inherit, key)
+        })
       })
     },
     forcedContinue () {

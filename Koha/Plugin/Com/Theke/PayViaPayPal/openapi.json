@@ -9,7 +9,49 @@
       ],
       "responses": {
         "200": {
-          "description": "PayPal configurations"
+          "description": "PayPal configurations",
+          "schema" :{
+            "type": "object",
+            "properties": {
+              "general": {
+                "type": "object",
+                "properties": {
+                  "PayPalSandboxMode": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "libraries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "library_id": {
+                      "type": "string"
+                    },
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "user": {
+                      "type": "string"
+                    },
+                    "pwd": {
+                      "type": "string"
+                    },
+                    "signature": {
+                      "type": "string"
+                    },
+                    "charge_description": {
+                      "type": "string"
+                    },
+                    "threshold": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "404": {
           "description": "An error occured",
@@ -111,31 +153,25 @@
               "type": "object",
               "properties": {
                 "library_id": {
-                  "type": "string",
-                  "nullable": true
+                  "type": "string"
                 },
                 "active": {
                   "type": "boolean"
                 },
                 "user": {
-                  "type": "string",
-                  "nullable": true
+                  "type": "string"
                 },
                 "pwd": {
-                  "type": "string",
-                  "nullable": true
+                  "type": "string"
                 },
                 "signature": {
-                  "type": "string",
-                  "nullable": true
+                  "type": "string"
                 },
                 "charge_description": {
-                  "type": "string",
-                  "nullable": true
+                  "type": "string"
                 },
                 "threshold": {
-                  "type": "number",
-                  "nullable": true
+                  "type": "number"
                 }
               }
             }

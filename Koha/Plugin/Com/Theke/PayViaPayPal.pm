@@ -317,12 +317,12 @@ sub install {
         CREATE TABLE IF NOT EXISTS $table (
             `id`                    INT(11) NOT NULL AUTO_INCREMENT,
             `library_id`            VARCHAR(10) DEFAULT NULL,
-            `active`                BOOLEAN NOT NULL DEFAULT TRUE,
-            `user`                  VARCHAR(250) NOT NULL,
-            `pwd`                   VARCHAR(250) NOT NULL,
-            `signature`             VARCHAR(250) NOT NULL,
-            `charge_description`    VARCHAR(250) NOT NULL,
-            `theshold`              INT(11) NOT NULL DEFAULT 0,
+            `active`                BOOLEAN DEFAULT TRUE,
+            `user`                  VARCHAR(250) DEFAULT NULL,
+            `pwd`                   VARCHAR(250) DEFAULT NULL,
+            `signature`             VARCHAR(250) DEFAULT NULL,
+            `charge_description`    VARCHAR(250) DEFAULT NULL,
+            `threshold`             INT(11) DEFAULT 0,
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     });
@@ -358,12 +358,21 @@ sub _process_confs {
 
     my $table = $self->get_qualified_table_name('pay_via_paypal');
 
-    my @rows = $args->{rows};
+    my $rows = $args->{rows};
 
-    foreach my $row (@rows) {
-        my $exists = C4::Context->dbh->fetchrow_hashref(qq{
+    foreach my $row (@$rows) {
+        use Data::Printer colored=>1;
+
+        p $row;
+
+        my $sth = C4::Context->dbh->prepare(qq{
             SELECT id FROM $table where library_id = ? or (library_id is null and ? is null)
-        }, undef, $row->{library_id}, $row->{library_id});
+        });
+
+        $sth->execute($row->{library_id}||undef, $row->{library_id}||undef);
+
+        my $exists = $sth->fetchrow_hashref();
+
         if($exists) {
             C4::Context->dbh->do(qq{
                 UPDATE $table 
@@ -374,12 +383,12 @@ sub _process_confs {
                     charge_description = ?,
                     threshold = ?
                 WHERE id = ?
-            }, undef, $row->{active}, $row->{user}, $row->{pwd}, $row->{signature}, $row->{charge_description}, $row->{threshold}, $exists->{id});
+            }, undef, $row->{active}?1:0, $row->{user}||undef, $row->{pwd}||undef, $row->{signature}||undef, $row->{charge_description}||undef, $row->{threshold}||undef, $exists->{id});
         } else {
             C4::Context->dbh->do(qq{
                 INSERT INTO $table (library_id, active, user, pwd, signature, charge_description, threshold)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            }, undef, $row->{library_id}, $row->{active}, $row->{user}, $row->{pwd}, $row->{signature}, $row->{charge_description}, $row->{threshold});
+            }, undef, $row->{library_id}||undef, $row->{active}?1:0, $row->{user}||undef, $row->{pwd}||undef, $row->{signature}||undef, $row->{charge_description}||undef, $row->{threshold}||undef);
         }
     }
 }
