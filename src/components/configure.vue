@@ -1,7 +1,6 @@
 <template>
   <v-content>
     <v-container>
-      {{ inherit }}
       <v-card v-if="schema && schema.properties && schema.properties.generalOptions">
         <v-card-actions>
           <v-btn :disabled="!gen_form_valid || !lib_form_valid" @click="save()">
@@ -338,8 +337,8 @@ export default {
       return this.libraries.filter(lib => lib.library_id && !this.libraryConfs.find(conf => lib.library_id === conf.library_id))
     },
     setInherit (schema, key, model) {
-      this.$set(this.inherit, key, schema.hasOwnProperty('x-set-inherit')?schema['x-set-inherit']:model === null)
-      return this.inherit
+      if(!this.inherit.hasOwnProperty(key))
+        this.$set(this.inherit, key, schema.hasOwnProperty('x-set-inherit')?schema['x-set-inherit']:model === null)
     },
     checkForm (event, i) {
       this.setDefaultOptions()

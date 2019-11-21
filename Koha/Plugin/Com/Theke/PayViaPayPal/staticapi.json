@@ -211,7 +211,7 @@
     }
   }
 },
-"/_nuxt/443f19ead659aa405037.js": {
+"/_nuxt/409e4993163e4998d426.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -317,59 +317,6 @@
     }
   }
 },
-"/_nuxt/ad951633dc31bae2f4e8.js": {
-  "get": {
-    "x-mojo-to": "Static#get",
-    "tags": [
-      "pluginStatic",
-      "paypal"
-    ],
-    "responses": {
-      "200": {
-        "description": "File found",
-        "schema": {
-          "type": "file"
-        }
-      },
-      "400": {
-        "description": "Bad request",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "File not found",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Internal server error",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      }
-    }
-  }
-},
 "/_nuxt/c01f8725c6a3478df69e.js": {
   "get": {
     "x-mojo-to": "Static#get",
@@ -423,7 +370,7 @@
     }
   }
 },
-"/_nuxt/c24b1cb7a2f7a7392110.js": {
+"/_nuxt/c54e245a8c708b69296f.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -582,7 +529,60 @@
     }
   }
 },
-"/_nuxt/f512c9de830ca97d09d8.js": {
+"/_nuxt/ddcec014380fa8f6652c.js": {
+  "get": {
+    "x-mojo-to": "Static#get",
+    "tags": [
+      "pluginStatic",
+      "paypal"
+    ],
+    "responses": {
+      "200": {
+        "description": "File found",
+        "schema": {
+          "type": "file"
+        }
+      },
+      "400": {
+        "description": "Bad request",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "File not found",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/_nuxt/f623bdae8715c98266c6.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [

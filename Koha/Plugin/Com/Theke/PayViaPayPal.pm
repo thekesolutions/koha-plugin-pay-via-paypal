@@ -287,25 +287,9 @@ sub opac_online_payment_threshold {
 ## be split up like the 'report' method is.
 sub configure {
     my ( $self, $args ) = @_;
-    my $cgi = $self->{'cgi'};
 
-    unless ( $cgi->param('save') ) {
-        my $template = $self->get_template({ file => 'configure.tt' });
-
-        ## Grab the values we already have for our settings, if any exist
-        $template->param(
-            PayPalSandboxMode       => $self->retrieve_data('PayPalSandboxMode'),
-        );
-
-        $self->output_html( $template->output() );
-    }
-    else {
-        my $data = {
-            PayPalSandboxMode       => $cgi->param('PayPalSandboxMode'),
-        };
-        $self->store_data($data);
-        $self->go_home();
-    }
+    my $template = $self->get_template({ file => 'configure.tt' });
+    $self->output_html( $template->output() );
 }
 
 sub install {
@@ -335,6 +319,30 @@ sub uninstall() {
     my $table = $self->get_qualified_table_name('pay_via_paypal');
 
     return C4::Context->dbh->do("DROP TABLE IF EXISTS $table");
+}
+
+sub _get_conf {
+    my ( $self, $args ) = @_;
+
+    my $library_id = $args->{library_id};
+
+    my $table = $self->get_qualified_table_name('pay_via_paypal');
+
+    my $query = qq{
+        select  coalesce(l.active, d.active) as active,
+                coalesce(l.user, d.user) as user,
+                coalesce(l.pwd, d.pwd) as pwd,
+                coalesce(l.signature, d.signature) as signature,
+                coalesce(l.charge_description, d.charge_description) as charge_description,
+                coalesce(l.threshold, d.threshold) as threshold
+        from    (select * from $table where library_id is null) d,
+                (select * from $table where library_id = ?) l
+        where   d.active or l.active
+    };
+
+    my $sth = C4::Context->dbh->prepare($query);
+    $sth->execute($library_id);
+    return $sth->fetchrow_hashref()
 }
 
 sub _fetch_confs {
