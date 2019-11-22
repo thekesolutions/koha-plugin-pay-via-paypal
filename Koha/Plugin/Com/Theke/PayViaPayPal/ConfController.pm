@@ -23,7 +23,6 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Try::Tiny;
 
-use Data::Printer colored=>1;
 use Mojo::JSON;
 
 my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
@@ -60,10 +59,6 @@ sub get_confs {
 
         $response->{general} = {PayPalSandboxMode => $sandbox?Mojo::JSON->true:Mojo::JSON->false} if defined $sandbox;
     
-    use Data::Printer colored => 1;
-
-    p $response;
-    
         return $c->render( status => 200, openapi => $response );
     }
     catch {
@@ -82,10 +77,6 @@ sub set_genelar {
     my $c = shift->openapi->valid_input or return;
 
     my $general = $c->validation->param('general');
-
-use Data::Printer colored => 1;
-
-p $general;
 
     return try {
         $general->{PayPalSandboxMode} = $general->{PayPalSandboxMode}?1:0;
@@ -109,12 +100,6 @@ sub set_libraries {
     my $c = shift->openapi->valid_input or return;
 
     my $libConfs = $c->validation->every_param('libConfs');
-
-    use Data::Printer colored => 1;
-
-    p $libConfs;
-
-    p $c->validation;
 
     return try {
         $paypal->_process_confs({ rows => $libConfs });

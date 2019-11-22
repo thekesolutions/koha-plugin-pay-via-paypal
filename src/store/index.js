@@ -71,11 +71,3 @@ export const mutations = {
     state.clean = true
   }
 }
-
-// export const getters = {
-//   configured_libraries (state) {
-//     console.log(state)
-//     const names = state.list.map(config => !config.library_id?{library_id: null, name: 'Default'}:state.libraries.list.filter(library => library.library_id == config.library_id).map(library))
-//     return state.libraries.list.filter(library => configIds.includes(library.library_id))
-//   }
-// }

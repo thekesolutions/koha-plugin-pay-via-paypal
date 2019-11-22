@@ -8,8 +8,6 @@ export default async ({ app, store, $axios }) => {
   // Set i18n instance on app
   // This way we can use it in middleware and pages asyncData/fetch
   // const loadedLanguages = ['en']
-console.log(Vue)
-console.log($axios)
   const messages = {
     'en': await $axios.$get(koha_api.path+'/static/locales/en.json')
   }

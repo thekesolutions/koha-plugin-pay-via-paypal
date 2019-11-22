@@ -62,14 +62,11 @@ sub new {
 ## this method will return true
 sub opac_online_payment {
     my ( $self, $args ) = @_;
-    use Data::Printer colored=>1;
+
     my $library_id = C4::Context->userenv->{branch};
-    p $library_id;
 
     my $conf = $self->_get_conf({ library_id => $library_id });
     
-    p $conf;
-
     return defined $conf->{user} && defined $conf->{pwd} && defined $conf->{signature};
 }
 
@@ -104,6 +101,9 @@ sub opac_online_payment_begin {
         plugin_dir => $self->bundle_path
     );
 
+    my $library_id = C4::Context->userenv->{branch};
+    my $conf = $self->_get_conf({ library_id => $library_id });
+
     my $url =
       $self->retrieve_data('PayPalSandboxMode')
       ? 'https://api-3t.sandbox.paypal.com/nvp'
@@ -128,9 +128,9 @@ sub opac_online_payment_begin {
     my $cancel_url = URI->new( $opac_base_url . "/cgi-bin/koha/opac-account.pl" );
 
     my $nvp_params = {
-        'USER'      => $self->retrieve_data('PayPalUser'),
-        'PWD'       => $self->retrieve_data('PayPalPwd'),
-        'SIGNATURE' => $self->retrieve_data('PayPalSignature'),
+        'USER'      => $conf->{user},
+        'PWD'       => $conf->{pwd},
+        'SIGNATURE' => $conf->{signature},
 
         # API Version and Operation
         'METHOD'  => 'SetExpressCheckout',
@@ -147,7 +147,7 @@ sub opac_online_payment_begin {
         'PAYMENTREQUEST_0_AMT'                  => $amount_to_pay,
         'PAYMENTREQUEST_0_PAYMENTACTION'        => 'Sale',
         'PAYMENTREQUEST_0_ALLOWEDPAYMENTMETHOD' => 'InstantPaymentOnly',
-        'PAYMENTREQUEST_0_DESC'                 => $self->retrieve_data('PayPalChargeDescription'),
+        'PAYMENTREQUEST_0_DESC'                 => $conf->{charge_description},
         'SOLUTIONTYPE'                          => 'Sole',
     };
 
@@ -222,10 +222,13 @@ sub opac_online_payment_end {
       ? 'https://api-3t.sandbox.paypal.com/nvp'
       : 'https://api-3t.paypal.com/nvp';
 
+    my $library_id = C4::Context->userenv->{branch};
+    my $conf = $self->_get_conf({ library_id => $library_id });      
+
     my $nvp_params = {
-        'USER'      => $self->retrieve_data('PayPalUser'),
-        'PWD'       => $self->retrieve_data('PayPalPwd'),
-        'SIGNATURE' => $self->retrieve_data('PayPalSignature'),
+        'USER'      => $conf->{user},
+        'PWD'       => $conf->{pwd},
+        'SIGNATURE' => $conf->{signature},
 
         # API Version and Operation
         'METHOD'  => 'DoExpressCheckoutPayment',
@@ -391,10 +394,6 @@ sub _process_confs {
     my $rows = $args->{rows};
 
     foreach my $row (@$rows) {
-        use Data::Printer colored=>1;
-
-        p $row;
-
         my $sth = C4::Context->dbh->prepare(qq{
             SELECT id FROM $table where library_id = ? or (library_id is null and ? is null)
         });

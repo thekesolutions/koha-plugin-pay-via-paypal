@@ -281,11 +281,8 @@ export default {
       store: 'save'
     }),
     setDefaultOptions () {
-      console.log(this.inherit)
       for (let key in this.inherit) {
-        console.log(key)
         if (this.inherit[key]) {
-          console.log(this.libraryConfs[this.selected_idx])
           let nxt = key.split('.').reduce((prev, key, i) => {
             if (i===0) return {prev, key}
             return {prev: prev.prev, key}
