@@ -1,6 +1,6 @@
 {
   "name": "koha-plugin-pay-via-paypal",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Koha PayPal Plugin",
   "api_namespace": "paypal",
   "devDependencies": {
