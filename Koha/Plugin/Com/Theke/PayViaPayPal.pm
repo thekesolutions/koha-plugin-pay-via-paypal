@@ -62,8 +62,15 @@ sub new {
 ## this method will return true
 sub opac_online_payment {
     my ( $self, $args ) = @_;
+    use Data::Printer colored=>1;
+    my $library_id = C4::Context->userenv->{branch};
+    p $library_id;
 
-    return defined $self->retrieve_data('PayPalUser') && defined $self->retrieve_data('PayPalPwd')&& defined $self->retrieve_data('PayPalSignature');
+    my $conf = $self->_get_conf({ library_id => $library_id });
+    
+    p $conf;
+
+    return defined $conf->{user} && defined $conf->{pwd} && defined $conf->{signature};
 }
 
 ## This method triggers the beginning of the payment process
@@ -278,7 +285,9 @@ sub opac_online_payment_end {
 
 sub opac_online_payment_threshold {
     my ( $self, $args ) = @_;
-    return $self->retrieve_data('threshold')||0;
+    my $library_id = C4::Context->userenv->{branch};
+    my $conf = $self->_get_conf({ library_id => $library_id });
+    return $conf->{threshold}||0;
 }
 
 ## If your tool is complicated enough to needs it's own setting/configuration
@@ -335,9 +344,22 @@ sub _get_conf {
                 coalesce(l.signature, d.signature) as signature,
                 coalesce(l.charge_description, d.charge_description) as charge_description,
                 coalesce(l.threshold, d.threshold) as threshold
-        from    (select * from $table where library_id is null) d,
-                (select * from $table where library_id = ?) l
-        where   d.active or l.active
+        from    (
+                select 1 as _order, active, user, pwd, signature, charge_description, threshold from $table where library_id is null
+                union
+                select 2, null, null, null, null, null, null
+                order by 1
+                limit 1
+                ) d
+        cross join
+                (
+                select 1 as _order, active, user, pwd, signature, charge_description, threshold from $table where library_id = ?
+                union
+                select 2, null, null, null, null, null, null
+                order by 1
+                limit 1
+                ) l
+        where   d.active = 1 or l.active = 1
     };
 
     my $sth = C4::Context->dbh->prepare($query);
