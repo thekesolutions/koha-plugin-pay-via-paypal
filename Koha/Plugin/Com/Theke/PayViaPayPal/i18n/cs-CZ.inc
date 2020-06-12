@@ -2,15 +2,15 @@
 	[%
 		TOKENS = {
 			home_breadcrumb = "Koha"
-			your_payment_breadcrumb = "Your Payment"
+			your_payment_breadcrumb = "Vaše platba"
 			error = "Chyba"
-			error_title = "došlo k chybě při zpracování vaší platby"
+			error_title = "při zpracování vaší platby došlo k chybě."
 			PAYPAL_UNABLE_TO_CONNECT = "Nepodařilo se připojit ke službě PayPal."
-			PAYPAL_TRY_LATER = "Zkuste to prosím později"
+			PAYPAL_TRY_LATER = "Zkuste to prosím později."
 			PAYPAL_ERROR_PROCESSING = "Nebylo možné ověřit platbu."
 			PAYPAL_CONTACT_LIBRARY = "Pro ověření platby prosím kontaktujte knihovníka."
-			PAYPAL_ERROR_STARTING = "Unable to start your payment."
-			return = "Zpět k podrobnostem pokuty"
+			PAYPAL_ERROR_STARTING = "Nepodařilo se zahájit proces placení."
+			return = "Zpět k podrobnostem poplatku"
 		}
 	%]
 */
