@@ -1,3 +1,5 @@
 node_modules
 *kpz
 Koha/Plugin/Com/Theke/PayViaPayPal/_nuxt/*
+.vstags
+
