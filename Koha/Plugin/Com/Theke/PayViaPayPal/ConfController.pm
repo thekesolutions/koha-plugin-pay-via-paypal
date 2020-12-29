@@ -49,15 +49,23 @@ sub get_confs {
         my @filtered_confs;
         foreach my $conf (@configs) {
             foreach my $key (keys %$conf) {
-                $conf->{$key} = $conf->{$key}?Mojo::JSON->true:Mojo::JSON->false if $key eq 'active';
-                warn "$key ".$conf->{$key};
+                if ( $key eq 'active' ) {
+                    $conf->{$key} = $conf->{$key}
+                                    ? Mojo::JSON->true
+                                    : Mojo::JSON->false;
+                }
                 delete $conf->{$key} unless defined $conf->{$key}
             }
             push @filtered_confs, $conf;
         }
         $response->{libraries} = \@filtered_confs if scalar(@filtered_confs);
 
-        $response->{general} = {PayPalSandboxMode => $sandbox?Mojo::JSON->true:Mojo::JSON->false} if defined $sandbox;
+        if ( defined $sandbox ) {
+            $response->{general} =
+              {   PayPalSandboxMode => $sandbox
+                ? Mojo::JSON->true
+                : Mojo::JSON->false };
+        }
     
         return $c->render( status => 200, openapi => $response );
     }
