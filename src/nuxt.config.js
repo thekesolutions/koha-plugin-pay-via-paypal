@@ -7,7 +7,7 @@ export default {
   ** Headers of the page
   */
   head: {
-    titleTemplate: '%s - ' + process.env.npm_package_name,
+    titleTemplate: 'Koha › Plugins › Pay via PayPal',
     title: process.env.npm_package_name || '',
     meta: [
       { charset: 'utf-8' },
