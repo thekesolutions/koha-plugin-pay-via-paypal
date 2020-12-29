@@ -1,5 +1,5 @@
-const gulp = require('gulp');
-const release = require('gulp-github-release');
+const { dest, series, src } = require('gulp');
+
 const fs = require('fs');
 const run = require('gulp-run');
 const dateTime = require('node-datetime');
@@ -45,7 +45,7 @@ if(static_relative_path.length) {
 console.log(release_filename);
 console.log(pm_file_path_full_dist);
 
-gulp.task('vue', ()=>{
+const vue = () => {
     if(!api_namespace || !vue_path) return;
     static_relative_path.push('_nuxt');
     static_absolute_path = static_relative_path.map(dir=>path.join(pm_bundle_path, dir)+'/**/*');
@@ -60,9 +60,9 @@ gulp.task('vue', ()=>{
         cp ${vue_path}/dist/200.html ${pm_bundle_path}/configure.tt
         cp -r ${vue_path}/dist/api/v1/contrib/${api_namespace}/static/_nuxt ${pm_bundle_path}
     `).exec()
-})
+};
 
-const static = ()=>{
+const static = () => {
     if(static_absolute_path.length) {
         const tags = ['pluginStatic'];
         if(api_namespace) tags.push(api_namespace)
@@ -117,7 +117,7 @@ const static = ()=>{
             }
         }, null, 2);
 
-        return gulp.src(static_absolute_path)
+        return src(static_absolute_path)
             .pipe(new stream.Transform({
                 objectMode: true,
                 transform: (file, unused, cb) => {
@@ -145,13 +145,9 @@ const static = ()=>{
                 this.emit('data', file);
                 this.end();
             })
-            .pipe(gulp.dest(pm_bundle_path));
+            .pipe(dest(pm_bundle_path));
     }
 };
-
-gulp.task('static:vue', ['vue'], static);
-
-gulp.task('static', static);
 
 const build = () => {
     run(`
@@ -167,15 +163,6 @@ const build = () => {
 
 };
 
-gulp.task('build', ['static:vue'], build);
-
-gulp.task('build:perl', build);
-
-gulp.task('build:static', ['static'], build);
-
-gulp.task('release', () => {
-    gulp.src(release_filename)
-        .pipe(release({
-            manifest: require('./package.json') // package.json from which default values will be extracted if they're missing
-        }));
-});
+exports.static = static;
+exports.vue    = vue;
+exports.build  = series( vue, static, build );
