@@ -84,7 +84,7 @@ sub opac_online_payment_begin {
     my $ua = LWP::UserAgent->new;
 
     my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
-        {   template_name   => abs_path( $self->mbf_path( 'opac_online_payment_error.tt' ) ),
+        {   template_name   => $self->mbf_path( 'opac_online_payment_error.tt' ),
             query           => $cgi,
             type            => 'opac',
             authnotrequired => 0,
@@ -191,7 +191,7 @@ sub opac_online_payment_end {
     my $cgi = $self->{'cgi'};
     
     my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
-        {   template_name   => abs_path( $self->mbf_path( 'opac_online_payment_error.tt' ) ),
+        {   template_name   => $self->mbf_path( 'opac_online_payment_error.tt' ),
             query           => $cgi,
             type            => 'opac',
             authnotrequired => 0,
