@@ -45,7 +45,7 @@ if(static_relative_path.length) {
 console.log(release_filename);
 console.log(pm_file_path_full_dist);
 
-const vue = () => {
+function vue() {
     if(!api_namespace || !vue_path) return;
     static_relative_path.push('_nuxt');
     static_absolute_path = static_relative_path.map(dir=>path.join(pm_bundle_path, dir)+'/**/*');
@@ -62,7 +62,7 @@ const vue = () => {
     `).exec()
 };
 
-const static = () => {
+function static( cb ) {
     if(static_absolute_path.length) {
         const tags = ['pluginStatic'];
         if(api_namespace) tags.push(api_namespace)
@@ -147,10 +147,13 @@ const static = () => {
             })
             .pipe(dest(pm_bundle_path));
     }
+    else {
+        return cb();
+    }
 };
 
-const build = () => {
-    run(`
+function package() {
+    return run(`
         mkdir dist ;
         cp -r Koha dist/. ;
         sed -i -e "s/{VERSION}/${package_json.version}/g" ${pm_file_path_full_dist} ;
@@ -160,9 +163,10 @@ const build = () => {
         cd .. ;
         rm -rf dist ;
     `).exec();
-
 };
 
-exports.static = static;
-exports.vue    = vue;
-exports.build  = series( vue, static, build );
+exports.static  = static;
+exports.vue     = vue;
+exports.package = package;
+exports.vue_static = series( vue, static );
+exports.build   = series( vue, static, package );
