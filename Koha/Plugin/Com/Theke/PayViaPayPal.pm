@@ -11,13 +11,10 @@ use C4::Context;
 use C4::Output;
 use C4::Auth qw(get_template_and_user);
 use C4::Languages;
-use Koha::Patron;
+use Koha::Patrons;
 use Koha::DateUtils;
 use Koha::Libraries;
-use Koha::Patron::Categories;
-use Koha::Account;
 use Koha::Account::Lines;
-use MARC::Record;
 use Cwd qw(abs_path);
 use Mojo::JSON qw(decode_json);
 use URI;
@@ -190,7 +187,7 @@ sub opac_online_payment_end {
     my ( $self, $args ) = @_;
     my $cgi = $self->{'cgi'};
     
-    my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
+    my ( $template, $patron_id, $cookie ) = get_template_and_user(
         {   template_name   => $self->mbf_path( 'opac_online_payment_error.tt' ),
             query           => $cgi,
             type            => 'opac',
@@ -254,8 +251,9 @@ sub opac_online_payment_end {
         if ( $params{ACK} eq "Success" ) {
             $amount = $params{PAYMENTINFO_0_AMT};
 
-            my $account = Koha::Account->new( { patron_id => $borrowernumber } );
-            my @lines = Koha::Account::Lines->search(
+            my $patron  = Koha::Patrons->find( $patron_id );
+            my $account = $patron->account;
+            my @lines   = Koha::Account::Lines->search(
                 {
                     accountlines_id => { -in => \@accountlines }
                 }
@@ -263,10 +261,11 @@ sub opac_online_payment_end {
 
             $account->pay(
                 {
-                    amount => $amount,
-                    lines  => \@lines,
-                    note   => 'PayPal',
-                    interface => C4::Context->interface
+                    amount     => $amount,
+                    lines      => \@lines,
+                    note       => 'PayPal',
+                    interface  => C4::Context->interface,
+                    library_id => $patron->branchcode,
                 }
             );
             print $cgi->redirect("/cgi-bin/koha/opac-account.pl?payment=$amount")
