@@ -9,7 +9,7 @@ use base qw(Koha::Plugins::Base);
 ## We will also need to include any Koha libraries we want to access
 use C4::Context;
 use C4::Output;
-use C4::Auth;
+use C4::Auth qw(get_template_and_user);
 use C4::Languages;
 use Koha::Patron;
 use Koha::DateUtils;
