@@ -133,7 +133,7 @@ sub opac_online_payment_begin {
     }
     
     my $return_url = URI->new( $opac_base_url . "/cgi-bin/koha/opac-account-pay-return.pl" );
-    $return_url->query_form( { amount => $amount_to_pay, accountlines => \@accountlines, payment_method => 'Koha::Plugin::Com::Theke::PayViaPayPal' } );
+    $return_url->query_form( { amount => $amount_to_pay, accountlines => \@accountline_ids, payment_method => 'Koha::Plugin::Com::Theke::PayViaPayPal' } );
 
     my $cancel_url = URI->new( $opac_base_url . "/cgi-bin/koha/opac-account.pl" );
 
