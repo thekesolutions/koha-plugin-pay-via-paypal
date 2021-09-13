@@ -1,7 +1,8 @@
 {
     "generalOps": {
         "title": "Opciones generales",
-        "mode": "¿Modo de prueba?"
+        "mode": "¿Modo de prueba?",
+        "useBaseURL": "Utilizar la URL base configurada"
     },
     "perLibraryOps": {
         "title": "Opciones por biblioteca",

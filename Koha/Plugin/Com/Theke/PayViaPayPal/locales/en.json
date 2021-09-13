@@ -1,7 +1,8 @@
 {
     "generalOps": {
         "title": "General options",
-        "mode": "Sandbox mode?"
+        "mode": "Sandbox mode?",
+        "useBaseURL": "Use configured base URL"
     },
     "perLibraryOps": {
         "title": "Per library options",
