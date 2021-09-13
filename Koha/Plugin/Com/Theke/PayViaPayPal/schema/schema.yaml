@@ -8,6 +8,9 @@ properties:
       PayPalSandboxMode:
         title: {{generalOps.mode}}
         type: boolean
+      useBaseURL:
+        title: {{generalOps.useBaseURL}}
+        type: boolean
   perLibraryOptions:
     type: object
     required: ['library_id']

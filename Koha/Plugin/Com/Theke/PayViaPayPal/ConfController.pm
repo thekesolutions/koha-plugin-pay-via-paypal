@@ -25,8 +25,6 @@ use Try::Tiny;
 
 use Mojo::JSON;
 
-my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
-
 =head1 API
 
 =head2 Class Methods
@@ -41,9 +39,12 @@ sub get_confs {
 
     my $c = shift->openapi->valid_input or return;
 
+    my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
+
     return try {
-        my @configs = $paypal->_fetch_confs;
-        my $sandbox = $paypal->retrieve_data('PayPalSandboxMode');
+        my @configs    = $paypal->_fetch_confs;
+        my $sandbox    = $paypal->retrieve_data('PayPalSandboxMode');
+        my $useBaseURL = $paypal->retrieve_data('useBaseURL');
 
         my $response = {};
         my @filtered_confs;
@@ -60,13 +61,11 @@ sub get_confs {
         }
         $response->{libraries} = \@filtered_confs if scalar(@filtered_confs);
 
-        if ( defined $sandbox ) {
-            $response->{general} =
-              {   PayPalSandboxMode => $sandbox
-                ? Mojo::JSON->true
-                : Mojo::JSON->false };
-        }
-    
+        $response->{general} = {
+            PayPalSandboxMode => $sandbox    ? Mojo::JSON->true : Mojo::JSON->false,
+            useBaseURL        => $useBaseURL ? Mojo::JSON->true : Mojo::JSON->false,
+        };
+
         return $c->render( status => 200, openapi => $response );
     }
     catch {
@@ -85,14 +84,16 @@ sub set_genelar {
     my $c = shift->openapi->valid_input or return;
 
     my $general = $c->validation->param('general');
+    my $paypal  = Koha::Plugin::Com::Theke::PayViaPayPal->new;
 
     return try {
-        $general->{PayPalSandboxMode} = $general->{PayPalSandboxMode}?1:0;
+        $general->{PayPalSandboxMode} = $general->{PayPalSandboxMode} ? 1 : 0;
+        $general->{PayPayUseBaseURL}  = $general->{useBaseURL}  ? 1 : 0;
+
         $paypal->store_data($general);
 
-        return $c->render( status => 200, openapi => {general => "General configurations saved"} );
-    }
-    catch {
+        return $c->render( status => 200, openapi => { general => "General configurations saved" } );
+    } catch {
         return $c->render( status => 500, openapi => { error => 'Something went wrong' } );
     }
 }
@@ -108,6 +109,7 @@ sub set_libraries {
     my $c = shift->openapi->valid_input or return;
 
     my $libConfs = $c->validation->every_param('libConfs');
+    my $paypal   = Koha::Plugin::Com::Theke::PayViaPayPal->new;
 
     return try {
         $paypal->_process_confs({ rows => $libConfs });

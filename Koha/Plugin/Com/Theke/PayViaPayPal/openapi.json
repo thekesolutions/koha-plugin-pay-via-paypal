@@ -18,6 +18,9 @@
                 "properties": {
                   "PayPalSandboxMode": {
                     "type": "boolean"
+                  },
+                  "useBaseURL": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -102,6 +105,9 @@
             "type": "object",
             "properties": {
               "PayPalSandboxMode": {
+                "type": "boolean"
+              },
+              "useBaseURL": {
                 "type": "boolean"
               }
             }
