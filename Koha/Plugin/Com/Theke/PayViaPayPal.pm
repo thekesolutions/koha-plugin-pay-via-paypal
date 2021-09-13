@@ -48,26 +48,37 @@ our $metadata = {
     description     => 'This plugin implements payment method via PayPal',
 };
 
-## This is the minimum code required for a plugin's 'new' method
-## More can be added, but none should be removed
+=head1 Koha::Plugin::Com::Theke::PayViaPayPal
+
+PayPal payments plugin for Koha
+
+=head2 Plugin methods
+
+=head3 new
+
+Constructor:
+
+    $my $plugin = Koha::Plugin::Com::Theke::PayViaPayPal->new;
+
+=cut
+
 sub new {
     my ( $class, $args ) = @_;
 
-    ## We need to add our metadata here so our base class can access it
     $args->{'metadata'} = $metadata;
     $args->{'metadata'}->{'class'} = $class;
 
-    ## Here, we call the 'new' method for our base class
-    ## This runs some additional magic and checking
-    ## and returns our actual $self
     my $self = $class->SUPER::new($args);
 
     return $self;
 }
 
-## If your plugin can process payments online,
-## and that feature of the plugin is enabled,
-## this method will return true
+=head3 opac_online_payment
+
+Koha hook to tell it is a payment plugin
+
+=cut
+
 sub opac_online_payment {
     my ( $self, $args ) = @_;
 
@@ -80,9 +91,12 @@ sub opac_online_payment {
     return defined $conf->{user} && defined $conf->{pwd} && defined $conf->{signature};
 }
 
-## This method triggers the beginning of the payment process
-## It could result in a form displayed to the patron the is submitted
-## or go straight to a redirect to the payment service ala paypal
+=head3 opac_online_payment_begin
+
+Hook that is used to initialize the interaction with PayPal
+
+=cut
+
 sub opac_online_payment_begin {
     my ( $self, $args ) = @_;
     my $cgi = $self->{'cgi'};
@@ -193,9 +207,12 @@ sub opac_online_payment_begin {
 
 }
 
-## This method triggers the end of the payment process
-## Should should result in displaying a page indicating
-## the success or failure of the payment.
+=head3 opac_online_payment_end
+
+Method for handling the return from PayPal
+
+=cut
+
 sub opac_online_payment_end {
     my ( $self, $args ) = @_;
     my $cgi = $self->{'cgi'};
@@ -298,6 +315,13 @@ sub opac_online_payment_end {
     output_html_with_http_headers( $cgi, $cookie, $template->output, undef, { force_no_caching => 1 } ) if $error;
 }
 
+=head3 opac_online_payment_threshold
+
+Hook for returning the minimum thereshold to accept payments on PayPal.
+It is calculated from the configuration on a per-home library basis.
+
+=cut
+
 sub opac_online_payment_threshold {
     my ( $self, $args ) = @_;
     my $library_id = C4::Context->userenv->{branch};
@@ -315,6 +339,12 @@ sub configure {
     my $template = $self->get_template({ file => 'configure.tt' });
     $self->output_html( $template->output() );
 }
+
+=head3 install
+
+Do all is required to properly install the plugin
+
+=cut
 
 sub install {
     my ( $self, $args ) = @_;
@@ -337,6 +367,10 @@ sub install {
 
 }
 
+=head3 uninstall
+
+=cut
+
 sub uninstall() {
     my ( $self, $args ) = @_;
 
@@ -344,6 +378,48 @@ sub uninstall() {
 
     return C4::Context->dbh->do("DROP TABLE IF EXISTS $table");
 }
+
+=head3 api_routes
+
+=cut
+
+sub api_routes {
+    my ( $self, $args ) = @_;
+
+    my $spec_str = $self->mbf_read('openapi.json');
+    my $spec     = decode_json($spec_str);
+
+    return $spec;
+}
+
+=head3 api_namespace
+
+=cut
+
+sub api_namespace {
+    my ( $self ) = @_;
+
+    return 'paypal';
+}
+
+=head3 static_routes
+
+=cut
+
+sub static_routes {
+    my ( $self, $args ) = @_;
+
+    my $spec_str = $self->mbf_read('staticapi.json');
+    my $spec     = decode_json($spec_str);
+
+    return $spec;
+}
+
+=head2 Internal methods
+
+=head3 _get_conf
+
+=cut
 
 sub _get_conf {
     my ( $self, $args ) = @_;
@@ -382,6 +458,10 @@ sub _get_conf {
     return $sth->fetchrow_hashref()
 }
 
+=head3 _fetch_confs
+
+=cut
+
 sub _fetch_confs {
     my ( $self, $args ) = @_;
 
@@ -397,6 +477,10 @@ sub _fetch_confs {
     }
     return @results;
 }
+
+=head3 _process_confs
+
+=cut
 
 sub _process_confs {
     my ( $self, $args ) = @_;
@@ -432,30 +516,6 @@ sub _process_confs {
             }, undef, $row->{library_id}||undef, $row->{active}?1:0, $row->{user}||undef, $row->{pwd}||undef, $row->{signature}||undef, $row->{charge_description}||undef, $row->{threshold}||undef);
         }
     }
-}
-
-sub api_routes {
-    my ( $self, $args ) = @_;
-
-    my $spec_str = $self->mbf_read('openapi.json');
-    my $spec     = decode_json($spec_str);
-
-    return $spec;
-}
-
-sub api_namespace {
-    my ( $self ) = @_;
-    
-    return 'paypal';
-}
-
-sub static_routes {
-    my ( $self, $args ) = @_;
-
-    my $spec_str = $self->mbf_read('staticapi.json');
-    my $spec     = decode_json($spec_str);
-
-    return $spec;
 }
 
 1;
