@@ -134,7 +134,10 @@ sub opac_online_payment_begin {
       ? 'https://api-3t.sandbox.paypal.com/nvp'
       : 'https://api-3t.paypal.com/nvp';
 
-    my $opac_base_url = C4::Context->preference('OPACBaseURL');
+    my $opac_base_url =
+      $self->retrieve_data('useBaseURL')
+      ? C4::Context->preference('OPACBaseURL')
+      : $cgi->url( -base => 1 );
 
     my @accountline_ids = $cgi->multi_param('accountline');
 
