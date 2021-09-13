@@ -9,7 +9,7 @@ use base qw(Koha::Plugins::Base);
 ## We will also need to include any Koha libraries we want to access
 use C4::Context;
 use C4::Output;
-use C4::Auth qw(get_template_and_user);
+use C4::Auth qw(checkauth get_template_and_user);
 use C4::Languages;
 use Koha::Patrons;
 use Koha::DateUtils;
@@ -17,6 +17,7 @@ use Koha::Libraries;
 use Koha::Account::Lines;
 use Cwd qw(abs_path);
 use Mojo::JSON qw(decode_json);
+use CGI;
 use URI;
 use HTTP::Request::Common;
 use URI::Escape qw(uri_unescape);
@@ -60,10 +61,12 @@ sub new {
 sub opac_online_payment {
     my ( $self, $args ) = @_;
 
-    my $library_id = C4::Context->userenv->{branch};
+    my ($userid)   = checkauth( CGI->new, 0, {}, 'opac' );
+    my $patron     = Koha::Patrons->find( { userid => $userid } );
+    my $library_id = $patron->branchcode;
 
-    my $conf = $self->_get_conf({ library_id => $library_id });
-    
+    my $conf = $self->_get_conf( { library_id => $library_id } );
+
     return defined $conf->{user} && defined $conf->{pwd} && defined $conf->{signature};
 }
 
