@@ -30,6 +30,7 @@ use Koha::Account::Lines;
 use Cwd qw(abs_path);
 use Mojo::JSON qw(decode_json);
 use CGI;
+use Encode qw(decode_utf8);
 use URI;
 use HTTP::Request::Common;
 use URI::Escape qw(uri_unescape);
@@ -413,6 +414,19 @@ sub static_routes {
     my $spec     = decode_json($spec_str);
 
     return $spec;
+}
+
+=head3 opac_js
+
+Inject JavaScript in the OPAC
+
+=cut
+
+sub opac_js {
+    my ( $self ) = @_;
+
+    my $opac_js = decode_utf8($self->mbf_read('opac.js'));
+    return qq{<script>$opac_js</script>};
 }
 
 =head2 Internal methods
