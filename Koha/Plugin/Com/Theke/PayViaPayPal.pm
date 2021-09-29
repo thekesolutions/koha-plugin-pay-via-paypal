@@ -369,8 +369,8 @@ sub install {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     });
 
-    $self->store_data( 'PayPalSandboxMode', 1 );
-    $self->store_data( 'useBaseURL',        1 );
+    $self->store_data({'PayPalSandboxMode' => 1 });
+    $self->store_data({ 'useBaseURL' => 1 });
 }
 
 =head3 uninstall
