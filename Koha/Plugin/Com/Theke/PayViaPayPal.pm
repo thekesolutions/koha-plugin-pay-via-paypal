@@ -35,6 +35,7 @@ use URI;
 use HTTP::Request::Common;
 use URI::Escape qw(uri_unescape);
 use LWP::UserAgent;
+use Try::Tiny;
 
 our $VERSION = "{VERSION}";
 
@@ -353,24 +354,29 @@ Do all is required to properly install the plugin
 sub install {
     my ( $self, $args ) = @_;
 
-    my $table = $self->get_qualified_table_name('pay_via_paypal');
+    try {
+        my $table = $self->get_qualified_table_name('pay_via_paypal');
 
-    C4::Context->dbh->do(qq{
-        CREATE TABLE IF NOT EXISTS $table (
-            `id`                    INT(11) NOT NULL AUTO_INCREMENT,
-            `library_id`            VARCHAR(10) DEFAULT NULL,
-            `active`                BOOLEAN DEFAULT TRUE,
-            `user`                  VARCHAR(250) DEFAULT NULL,
-            `pwd`                   VARCHAR(250) DEFAULT NULL,
-            `signature`             VARCHAR(250) DEFAULT NULL,
-            `charge_description`    VARCHAR(250) DEFAULT NULL,
-            `threshold`             INT(11) DEFAULT 0,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    });
+        C4::Context->dbh->do(qq{
+            CREATE TABLE IF NOT EXISTS $table (
+                `id`                    INT(11) NOT NULL AUTO_INCREMENT,
+                `library_id`            VARCHAR(10) DEFAULT NULL,
+                `active`                BOOLEAN DEFAULT TRUE,
+                `user`                  VARCHAR(250) DEFAULT NULL,
+                `pwd`                   VARCHAR(250) DEFAULT NULL,
+                `signature`             VARCHAR(250) DEFAULT NULL,
+                `charge_description`    VARCHAR(250) DEFAULT NULL,
+                `threshold`             INT(11) DEFAULT 0,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        });
 
-    $self->store_data({'PayPalSandboxMode' => 1 });
-    $self->store_data({ 'useBaseURL' => 1 });
+        $self->store_data({ 'PayPalSandboxMode' => 1 });
+        $self->store_data({ 'useBaseURL'        => 1 });
+    } catch {
+        warn "Error installing PayPal plugin, caught error: $_";
+        return 0;
+    };
 
     return 1;
 }
