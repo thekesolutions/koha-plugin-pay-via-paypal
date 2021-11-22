@@ -88,7 +88,7 @@ sub set_genelar {
 
     return try {
         $general->{PayPalSandboxMode} = $general->{PayPalSandboxMode} ? 1 : 0;
-        $general->{PayPayUseBaseURL}  = $general->{useBaseURL}  ? 1 : 0;
+        $general->{PayPalUseBaseURL}  = $general->{useBaseURL}  ? 1 : 0;
 
         $paypal->store_data($general);
 
