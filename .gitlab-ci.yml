@@ -6,7 +6,7 @@ stages:
 build: 
   stage: release
   script:
-    - apk add --update zip curl jq python make g++ git
+    - apk add --update zip curl jq python3 make g++ git
     - npm install
     - npm install -g gulp-cli
     - gulp build
