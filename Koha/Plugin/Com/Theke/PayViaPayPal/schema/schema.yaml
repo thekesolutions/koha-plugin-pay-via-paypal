@@ -34,7 +34,7 @@ properties:
           pwd:
             title: {{perLibraryOps.pass}}
             type: string
-            x-display: custom-inherit
+            x-display: password
             x-class: row mx-0
           signature:
             title: {{perLibraryOps.sig}}
