@@ -371,6 +371,8 @@ sub install {
 
     $self->store_data({'PayPalSandboxMode' => 1 });
     $self->store_data({ 'useBaseURL' => 1 });
+
+    return 1;
 }
 
 =head3 uninstall
