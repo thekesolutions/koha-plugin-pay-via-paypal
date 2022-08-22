@@ -20,7 +20,7 @@ use Modern::Perl;
 use base qw(Koha::Plugins::Base);
 
 use C4::Context;
-use C4::Output;
+use C4::Output qw(output_html_with_http_headers);
 use C4::Auth qw(checkauth get_template_and_user);
 use C4::Languages;
 use Koha::Patrons;
@@ -41,10 +41,10 @@ our $VERSION = "{VERSION}";
 
 our $metadata = {
     name            => 'Pay Via PayPal',
-    author          => 'Agustín Moyano',
+    author          => 'Theke Solutions',
     date_authored   => '2019-06-13',
     date_updated    => "1900-01-01",
-    minimum_version => '19.1100000',
+    minimum_version => '21.1100000',
     maximum_version => undef,
     version         => $VERSION,
     description     => 'This plugin implements payment method via PayPal',
@@ -121,10 +121,10 @@ sub opac_online_payment_begin {
     my $lang = C4::Languages::getlanguage($cgi);
     my @lang_split = split /_|-/, $lang;
 
-    $template->param( 
+    $template->param(
         lang_dialect => $lang,
-        lang_all => $lang_split[0],
-        plugin_dir => $self->bundle_path
+        lang_all     => $lang_split[0],
+        plugin_dir   => $self->bundle_path
     );
 
     my $library_id = C4::Context->userenv->{branch};
@@ -292,7 +292,7 @@ sub opac_online_payment_end {
                 {
                     accountlines_id => { -in => \@accountlines }
                 }
-            );
+            )->as_list;
 
             $account->pay(
                 {
