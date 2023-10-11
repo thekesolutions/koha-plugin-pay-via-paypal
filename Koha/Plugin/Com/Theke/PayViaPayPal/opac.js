@@ -9,6 +9,6 @@ $(document).ready(function () {
         let txt = txts.find(item => {
             return item.nodeType === item.TEXT_NODE && item.nodeValue && item.nodeValue.trim() !== ''
         })
-        txt.parentNode.removeChild(txt);
+        if (txt) txt.parentNode.removeChild(txt);
     }
 });
