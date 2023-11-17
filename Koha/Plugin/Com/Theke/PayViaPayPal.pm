@@ -439,6 +439,10 @@ sub opac_js {
     my ( $self ) = @_;
 
     my $opac_js = decode_utf8($self->mbf_read('opac.js'));
+
+    my $paypal_image = '<a href="https://www.paypal.com" title="PayPal" class="paypal" target="_blank"><img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal Acceptance Mark" border="0"><a>';
+    $opac_js =~ s/PAYPAL_IMAGE/$paypal_image/;
+
     return qq{<script>$opac_js</script>};
 }
 
