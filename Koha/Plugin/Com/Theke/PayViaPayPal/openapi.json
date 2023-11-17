@@ -21,6 +21,9 @@
                   },
                   "useBaseURL": {
                     "type": "boolean"
+                  },
+                  "disableLink": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -108,6 +111,9 @@
                 "type": "boolean"
               },
               "useBaseURL": {
+                "type": "boolean"
+              },
+              "disableLink": {
                 "type": "boolean"
               }
             }

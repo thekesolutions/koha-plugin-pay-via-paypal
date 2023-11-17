@@ -2,7 +2,8 @@
     "generalOps": {
         "title": "Opciones generales",
         "mode": "¿Modo de prueba?",
-        "useBaseURL": "Utilizar la URL base configurada"
+        "useBaseURL": "Utilizar la URL base configurada",
+        "disableLink": "Deshabilitar enlace a PayPal"
     },
     "perLibraryOps": {
         "title": "Opciones por biblioteca",

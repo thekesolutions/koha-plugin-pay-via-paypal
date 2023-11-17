@@ -2,7 +2,8 @@
     "generalOps": {
         "title": "General options",
         "mode": "Sandbox mode?",
-        "useBaseURL": "Use configured base URL"
+        "useBaseURL": "Use configured base URL",
+        "disableLink": "Disable PayPal link"
     },
     "perLibraryOps": {
         "title": "Per library options",

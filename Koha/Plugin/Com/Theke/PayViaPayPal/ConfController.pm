@@ -42,9 +42,10 @@ sub get_confs {
     my $paypal = Koha::Plugin::Com::Theke::PayViaPayPal->new;
 
     return try {
-        my @configs    = $paypal->_fetch_confs;
-        my $sandbox    = $paypal->retrieve_data('PayPalSandboxMode');
-        my $useBaseURL = $paypal->retrieve_data('useBaseURL');
+        my @configs     = $paypal->_fetch_confs;
+        my $sandbox     = $paypal->retrieve_data('PayPalSandboxMode');
+        my $useBaseURL  = $paypal->retrieve_data('useBaseURL');
+        my $disableLink = $paypal->retrieve_data('disableLink');
 
         my $response = {};
         my @filtered_confs;
@@ -62,8 +63,9 @@ sub get_confs {
         $response->{libraries} = \@filtered_confs if scalar(@filtered_confs);
 
         $response->{general} = {
-            PayPalSandboxMode => $sandbox    ? Mojo::JSON->true : Mojo::JSON->false,
-            useBaseURL        => $useBaseURL ? Mojo::JSON->true : Mojo::JSON->false,
+            PayPalSandboxMode => $sandbox     ? Mojo::JSON->true : Mojo::JSON->false,
+            useBaseURL        => $useBaseURL  ? Mojo::JSON->true : Mojo::JSON->false,
+            disableLink       => $disableLink ? Mojo::JSON->true : Mojo::JSON->false,
         };
 
         return $c->render( status => 200, openapi => $response );
@@ -88,7 +90,8 @@ sub set_genelar {
 
     return try {
         $general->{PayPalSandboxMode} = $general->{PayPalSandboxMode} ? 1 : 0;
-        $general->{PayPalUseBaseURL}  = $general->{useBaseURL}  ? 1 : 0;
+        $general->{PayPalUseBaseURL}  = $general->{useBaseURL}        ? 1 : 0;
+        $general->{disableLink}       = $general->{disableLink}       ? 1 : 0;
 
         $paypal->store_data($general);
 

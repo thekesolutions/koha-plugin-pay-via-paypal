@@ -11,6 +11,9 @@ properties:
       useBaseURL:
         title: {{generalOps.useBaseURL}}
         type: boolean
+      disableLink:
+        title: {{generalOps.disableLink}}
+        type: boolean
   perLibraryOptions:
     type: object
     required: ['library_id']

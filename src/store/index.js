@@ -16,7 +16,7 @@ export const actions = {
             const data = await this.$axios.$get(koha_api.path + '/configs')
 
             if (!data.general) {
-                data.general = { PayPalSandboxMode: false, useBaseURL: true }
+                data.general = { PayPalSandboxMode: false, useBaseURL: true, disableLink: false }
             }
             if (!data.libraries || !data.libraries.length) {
                 // throw new Error('Could not get configuration list')
