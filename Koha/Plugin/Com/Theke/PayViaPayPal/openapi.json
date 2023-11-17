@@ -93,7 +93,7 @@
   },
   "/configs/general": {
     "post": {
-      "x-mojo-to": "Com::Theke::PayViaPayPal::ConfController#set_genelar",
+      "x-mojo-to": "Com::Theke::PayViaPayPal::ConfController#set_general",
       "operationId": "SetPayPalGeneralConfs",
       "tags": ["paypal"],
       "produces": [

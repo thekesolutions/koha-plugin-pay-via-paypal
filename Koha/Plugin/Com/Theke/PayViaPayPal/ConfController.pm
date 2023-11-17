@@ -75,13 +75,13 @@ sub get_confs {
     }
 }
 
-=head3 set_genelar
+=head3 set_general
 
 Set general configurations
 
 =cut
 
-sub set_genelar {
+sub set_general {
 
     my $c = shift->openapi->valid_input or return;
 
