@@ -1,14 +1,14 @@
 const { dest, series, src } = require('gulp');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 
 const fs = require('fs');
-const run = require('gulp-run');
-const dateTime = require('node-datetime');
 const Vinyl = require('vinyl');
 const path = require('path');
 const stream = require('stream');
 
-const dt = dateTime.create();
-const today = dt.format('Y-m-d');
+const today = new Date().toISOString().split('T')[0];
 
 const package_json = require('./package');
 const release_filename = `${package_json.name}-v${package_json.version}.kpz`;
@@ -45,21 +45,16 @@ if(static_relative_path.length) {
 console.log(release_filename);
 console.log(pm_file_path_full_dist);
 
-function vue() {
+async function vue() {
     if(!api_namespace || !vue_path) return;
     static_relative_path.push('_nuxt');
     static_absolute_path = static_relative_path.map(dir=>path.join(pm_bundle_path, dir)+'/**/*');
-    return run(`
-        rm -rf ${vue_path}/dist ${pm_bundle_path}/_nuxt;
-        echo '{"path": "/api/v1/contrib/${api_namespace}"}' > ${vue_path}/koha-api.json;
-        cd ${vue_path};
-        npm i;
-        API_URL="/" npm run build;
-        cd ..;
-        sed -i -e "s/<\\/body>/\\[% INCLUDE 'intranet-bottom.inc' %\\]/g" ${vue_path}/dist/200.html;
-        cp ${vue_path}/dist/200.html ${pm_bundle_path}/configure.tt
-        cp -r ${vue_path}/dist/api/v1/contrib/${api_namespace}/static/_nuxt ${pm_bundle_path}
-    `).exec()
+    await execPromise(`rm -rf ${vue_path}/dist ${pm_bundle_path}/_nuxt`);
+    await execPromise(`echo '{"path": "/api/v1/contrib/${api_namespace}"}' > ${vue_path}/koha-api.json`);
+    await execPromise(`cd ${vue_path} && npm i && API_URL="/" npm run build`);
+    await execPromise(`sed -i -e "s/<\\/body>/\\[% INCLUDE 'intranet-bottom.inc' %\\]/g" ${vue_path}/dist/200.html`);
+    await execPromise(`cp ${vue_path}/dist/200.html ${pm_bundle_path}/configure.tt`);
+    await execPromise(`cp -r ${vue_path}/dist/api/v1/contrib/${api_namespace}/static/_nuxt ${pm_bundle_path}`);
 };
 
 function static( cb ) {
@@ -148,25 +143,19 @@ function static( cb ) {
             .pipe(dest(pm_bundle_path));
     }
     else {
-        return cb();
+        cb();
     }
 };
 
-function package() {
-    return run(`
-        mkdir dist ;
-        cp -r Koha dist/. ;
-        sed -i -e "s/{VERSION}/${package_json.version}/g" ${pm_file_path_full_dist} ;
-        sed -i -e "s/1900-01-01/${today}/g" ${pm_file_path_full_dist} ;
-        cd dist ;
-        zip -r ../${release_filename} ./Koha ;
-        cd .. ;
-        rm -rf dist ;
-    `).exec();
-};
+async function build() {
+  await execPromise('mkdir -p dist');
+  await execPromise('cp -r Koha dist/.');
+  await execPromise(`sed -i -e "s/1970-01-01/${today}/g" ${pm_file_path_full_dist}`);
+  await execPromise(`cd dist && zip -r ../${release_filename} ./Koha`);
+  await execPromise('rm -rf dist');
+}
 
 exports.static  = static;
 exports.vue     = vue;
-exports.package = package;
 exports.vue_static = series( vue, static );
-exports.build   = series( vue, static, package );
+exports.build   = series( vue, static, build );
