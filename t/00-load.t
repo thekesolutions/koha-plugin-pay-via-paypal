@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+# This file is part of the Pay via PayPal plugin
+#
+# The Pay via PayPal plugin is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# The Pay via PayPal plugin is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with The Pay via PayPal plugin; if not, see <http://www.gnu.org/licenses>.
+
+use Modern::Perl;
+
+use Test::More tests => 2;
+use Test::NoWarnings;
+use File::Spec;
+use File::Find;
+
+find(
+    {
+        bydepth  => 1,
+        no_chdir => 1,
+        wanted   => sub {
+            my $m = $_;
+            return unless $m =~ s/[.]pm$//;
+            
+            # Handle Koha namespace modules
+            if ( $m =~ s{^.*/Koha/}{Koha/} ) {
+                $m =~ s{/}{::}g;
+                use_ok($m) || BAIL_OUT("***** PROBLEMS LOADING FILE '$m'");
+            }
+            # Handle t::lib namespace modules (test utilities)
+            elsif ( $m =~ s{^.*/t/lib/}{t::lib::} ) {
+                $m =~ s{/}{::}g;
+                use_ok($m) || BAIL_OUT("***** PROBLEMS LOADING FILE '$m'");
+            }
+        },
+    },
+    '.'
+);
