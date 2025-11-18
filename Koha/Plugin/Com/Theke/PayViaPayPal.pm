@@ -37,7 +37,7 @@ use URI::Escape qw(uri_unescape);
 use LWP::UserAgent;
 use Try::Tiny;
 
-our $VERSION = "2.5.2";
+our $VERSION = "2.5.3";
 
 our $metadata = {
     name            => 'Pay Via PayPal',
