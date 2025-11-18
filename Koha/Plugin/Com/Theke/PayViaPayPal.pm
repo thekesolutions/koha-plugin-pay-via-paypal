@@ -37,13 +37,13 @@ use URI::Escape qw(uri_unescape);
 use LWP::UserAgent;
 use Try::Tiny;
 
-our $VERSION = "{VERSION}";
+our $VERSION = "2.5.2";
 
 our $metadata = {
     name            => 'Pay Via PayPal',
     author          => 'Theke Solutions',
     date_authored   => '2019-06-13',
-    date_updated    => "1900-01-01",
+    date_updated    => "1970-01-01",
     minimum_version => '21.1100000',
     maximum_version => undef,
     version         => $VERSION,
