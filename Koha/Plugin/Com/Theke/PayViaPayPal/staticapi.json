@@ -158,7 +158,7 @@
     }
   }
 },
-"/_nuxt/12a30c1473cadf739c78.js": {
+"/_nuxt/214f208.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -211,7 +211,7 @@
     }
   }
 },
-"/_nuxt/1becea89fef323d56906.js": {
+"/_nuxt/236cf18.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -264,7 +264,7 @@
     }
   }
 },
-"/_nuxt/577dfe42e50d1f92df30.js": {
+"/_nuxt/27dbdef.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -317,7 +317,113 @@
     }
   }
 },
-"/_nuxt/77c7724cb7b76d9c6f1f.js": {
+"/_nuxt/49da506.js": {
+  "get": {
+    "x-mojo-to": "Static#get",
+    "tags": [
+      "pluginStatic",
+      "paypal"
+    ],
+    "responses": {
+      "200": {
+        "description": "File found",
+        "schema": {
+          "type": "file"
+        }
+      },
+      "400": {
+        "description": "Bad request",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "File not found",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/_nuxt/899f622.js": {
+  "get": {
+    "x-mojo-to": "Static#get",
+    "tags": [
+      "pluginStatic",
+      "paypal"
+    ],
+    "responses": {
+      "200": {
+        "description": "File found",
+        "schema": {
+          "type": "file"
+        }
+      },
+      "400": {
+        "description": "Bad request",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "File not found",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "description": "An explanation for the error",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/_nuxt/9b450c9.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -423,7 +529,7 @@
     }
   }
 },
-"/_nuxt/a22d2a919973e6842a7d.js": {
+"/_nuxt/c81f170.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [
@@ -476,113 +582,7 @@
     }
   }
 },
-"/_nuxt/b50d36cd3cebca67473e.js": {
-  "get": {
-    "x-mojo-to": "Static#get",
-    "tags": [
-      "pluginStatic",
-      "paypal"
-    ],
-    "responses": {
-      "200": {
-        "description": "File found",
-        "schema": {
-          "type": "file"
-        }
-      },
-      "400": {
-        "description": "Bad request",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "File not found",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Internal server error",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      }
-    }
-  }
-},
-"/_nuxt/cac8d9c1c7a8b916dec5.js": {
-  "get": {
-    "x-mojo-to": "Static#get",
-    "tags": [
-      "pluginStatic",
-      "paypal"
-    ],
-    "responses": {
-      "200": {
-        "description": "File found",
-        "schema": {
-          "type": "file"
-        }
-      },
-      "400": {
-        "description": "Bad request",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "File not found",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Internal server error",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "description": "An explanation for the error",
-              "type": "string"
-            }
-          }
-        }
-      }
-    }
-  }
-},
-"/_nuxt/fcbc0c15b3100c6bfa9d.js": {
+"/_nuxt/d542180.js": {
   "get": {
     "x-mojo-to": "Static#get",
     "tags": [

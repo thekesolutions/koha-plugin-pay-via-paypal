@@ -115,7 +115,7 @@ jobs:
       - name: Build Koha Plugin kpz artifact
         id: kpz
         run: |
-          docker run -v ${PWD}:/plugin registry.gitlab.com/thekesolutions/tools/koha-plugin-builder
+          docker run -v ${PWD}:/plugin registry.gitlab.com/thekesolutions/tools/koha-plugin-builder:v22.0
           echo "filename=$(ls *.kpz)" >> $GITHUB_OUTPUT
       
       - name: Release

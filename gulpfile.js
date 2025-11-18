@@ -130,16 +130,18 @@ function static( cb ) {
                     !this.bufArray && (this.bufArray = []);
                     this.bufArray.push(file.contents);
                     cb();
+                },
+                flush: function(cb) {
+                    if (this.bufArray && this.bufArray.length) {
+                        let file = new Vinyl({
+                            path: 'staticapi.json',
+                            contents: Buffer.from('{\n'+this.bufArray.map(buf=>buf.toString()).join(',\n')+'\n}')
+                        });
+                        this.push(file);
+                    }
+                    cb();
                 }
             }))
-            .on('finish', function() {
-                let file = new Vinyl({
-                    path: 'staticapi.json',
-                    contents: Buffer.from('{\n'+this.bufArray.map(buf=>buf.toString()).join(',\n')+'\n}')
-                });
-                this.emit('data', file);
-                this.end();
-            })
             .pipe(dest(pm_bundle_path));
     }
     else {
